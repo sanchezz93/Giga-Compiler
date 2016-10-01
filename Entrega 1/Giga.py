@@ -4,32 +4,47 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-tokens = (
-    'MODULE', 'MAIN', 'FUNC', 'TYPE', 'PRINT', 'READ', 'IF', 'ELSE', 'ELSEIF', 'TRUE', 'FALSE', 'VOID', 'WHILE',
+reserved = {
+    'module' : 'MODULE',
+    'main' : 'MAIN',
+    'func' : 'FUNC',
+    'print' : 'PRINT',
+    'read' : 'READ',
+    'if' : 'IF',
+    'else' : 'ELSE',
+    'elseif' : 'ELSEIF',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
+    'void' : 'VOID',
+    'while' : 'WHILE'
+}
+
+tokens = [
+	'TYPE',
     'ASSIGN', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
     'LESSTHAN', 'GREATERTHAN', 'LESSTHANEQ', 'GREATERTHANEQ', 'EQUAL', 'DIFFERENT', 'OR', 'AND',
     'LEFTBKT', 'RIGHTBKT', 'LEFTSQBKT', 'RIGHTSQBKT', 'LEFTPAREN', 'RIGHTPAREN', 'COMMA', 'SEMICOLON',
 
     'ID', 'NUMBERINT', 'NUMBERFLT', 'STRING'
-)
+] + list(reserved.values())
 
 #literals = ['=', '+', '-', '*', '/', '(', ')']
 
 # Tokens
 
-t_MODULE = r'module'
-t_MAIN = r'main'
-t_FUNC = r'func'
+# t_MODULE = r'module'
+# t_MAIN = r'main'
+# t_FUNC = r'func'
 t_TYPE = r'bool|int|float|char|string'
-t_PRINT = r'print'
-t_READ = r'read'
-t_IF = r'if'
-t_ELSE = r'else'
-t_ELSEIF = r'elseif'
-t_TRUE = r'true'
-t_FALSE = r'false'
-t_VOID = r'void'
-t_WHILE = r'while'
+# t_PRINT = r'print'
+# t_READ = r'read'
+# t_IF = r'if'
+# t_ELSE = r'else'
+# t_ELSEIF = r'elseif'
+# t_TRUE = r'true'
+# t_FALSE = r'false'
+# t_VOID = r'void'
+# t_WHILE = r'while'
 t_ASSIGN = r'='
 t_PLUS = r'\+'
 t_MINUS = r'\-'
@@ -52,13 +67,16 @@ t_RIGHTPAREN = r'\)'
 t_COMMA = r'\,'
 t_SEMICOLON = r'\;'
 
-t_ID = r'[a-z_][a-zA-Z0-9_]*'
 t_NUMBERINT = r'[0-9]+'
 t_NUMBERFLT = r'[0-9]+\.[0-9]+'
 t_STRING = r'[a-zA-Z0-9_]+'
 
 t_ignore = " \t"
 
+def  t_ID(t):
+    r'[a-z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value, 'ID')
+    return t
 
 def t_newline(t):
     r'\n+'
@@ -79,19 +97,19 @@ lex.lex()
 #     ('right', 'UMINUS'),
 # )
 
-start = 'module'
+start = 'moduleg'
 
 # For using empty
 def p_empty(p):
     '''empty :'''
     pass
 
-def p_module(p):
-    '''module : MODULE ID LEFTBKT module1 main RIGHTBKT'''
+def p_moduleg(p):
+    '''moduleg : MODULE ID LEFTBKT module1 maing RIGHTBKT'''
 def p_module1(p):
     '''module1 : empty
             | vars module1
-            | func module1'''
+            | funcg module1'''
 
 def p_vars(p):
     '''vars : TYPE vars1 vars2 SEMICOLON'''
@@ -107,11 +125,11 @@ def p_vars3(p):
 def p_func1(p):
     '''func1 : VOID ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT
             | TYPE ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT'''
-def p_func(p):
-    '''func : FUNC func1'''
+def p_funcg(p):
+    '''funcg : FUNC func1'''
 
-def p_main(p):
-    '''main : MAIN block'''
+def p_maing(p):
+    '''maing : MAIN block'''
 
 def p_block1(p):
     '''block1 : empty
@@ -122,8 +140,8 @@ def p_block(p):
 def p_write(p):
     '''write : PRINT LEFTPAREN cte RIGHTPAREN SEMICOLON'''
 
-def p_read(p):
-    '''read : READ LEFTPAREN ID RIGHTPAREN SEMICOLON'''
+def p_readg(p):
+    '''readg : READ LEFTPAREN ID RIGHTPAREN SEMICOLON'''
 
 
 def p_expression1(p):
@@ -164,71 +182,71 @@ def p_factor(p):
 def p_statute(p):
     '''statute : assignement
             | condition
-            | read
+            | readg
             | write
             | call
             | cycle'''
 
 def p_cycle(p):
-	'''cycle : WHILE LEFTPAREN expression RIGHTPAREN block'''
+    '''cycle : WHILE LEFTPAREN expression RIGHTPAREN block'''
 
 def p_call2(p):
-	'''call2 : empty
-			| COMMA exp call2'''
+    '''call2 : empty
+            | COMMA exp call2'''
 def p_call1(p):
-	'''call1 : empty
-			| exp call2'''
+    '''call1 : empty
+            | exp call2'''
 def p_call(p):
-	'''call : ID LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
+    '''call : ID LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
 
 def p_arguments1(p):
-	'''arguments1 : empty
-			| COMMA TYPE ID arguments1'''
+    '''arguments1 : empty
+            | COMMA TYPE ID arguments1'''
 def p_arguments(p):
-	'''arguments : TYPE ID arguments1'''
+    '''arguments : TYPE ID arguments1'''
 
 def p_constant1(p):
-	'''constant1 : empty
-			| COMMA cte constant1'''
+    '''constant1 : empty
+            | COMMA cte constant1'''
 def p_constant(p):
-	'''constant : cte
-			| LEFTSQBKT cte constant1 RIGHTSQBKT'''
+    '''constant : cte
+            | LEFTSQBKT cte constant1 RIGHTSQBKT'''
 
 def p_cte(p):
-	'''cte : ID
-			| varArr
-			| TRUE
-			| FALSE
-			| cteN
-			| cteS'''
+    '''cte : ID
+            | varArr
+            | TRUE
+            | FALSE
+            | cteN
+            | cteS'''
 
 def p_cteN(p):
-	'''cteN : NUMBERINT
-			| NUMBERFLT'''
+    '''cteN : NUMBERINT
+            | NUMBERFLT'''
 
 def p_cteS(p):
-	'''cteS : STRING'''
+    '''cteS : STRING'''
 
 def p_condition2(p):
-	'''condition2 : empty
-			| ELSE block'''
+    '''condition2 : empty
+            | ELSE block'''
 def p_condition1(p):
-	'''condition1 : empty
-			| ELSEIF LEFTPAREN expression RIGHTPAREN block condition1'''
+    '''condition1 : empty
+            | ELSEIF LEFTPAREN expression RIGHTPAREN block condition1'''
 def p_condition(p):
-	'''condition : IF LEFTPAREN expression RIGHTPAREN block condition1 condition2'''
+    '''condition : IF LEFTPAREN expression RIGHTPAREN block condition1 condition2'''
 
 def p_assignement2(p):
-	'''assignement2 : call
-			| expression'''
+    '''assignement2 : call
+            | expression'''
 def p_assignement1(p):
-	'''assignement1 : ID
-			| varArr'''
+    '''assignement1 : ID
+            | varArr'''
 def p_assignement(p):
-	'''assignement : assignement1 ASSIGN assignement2 SEMICOLON'''
+    '''assignement : assignement1 ASSIGN assignement2 SEMICOLON'''
 
 def p_varArr(p):
-	'''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
+    '''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
 
 
 
