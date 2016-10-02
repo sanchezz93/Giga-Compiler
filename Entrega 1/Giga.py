@@ -21,7 +21,8 @@ reserved = {
     'int' : 'TINT',
     'float' : 'TFLOAT',
     'char' : 'TCHAR',
-    'string' : 'TSTRING'
+    'string' : 'TSTRING',
+    'return' : 'RETURN'
 }
 
 tokens = [
@@ -31,8 +32,6 @@ tokens = [
 
     'ID', 'NUMBERINT', 'NUMBERFLT', 'STRING'
 ] + list(reserved.values())
-
-#literals = ['=', '+', '-', '*', '/', '(', ')']
 
 # Tokens
 
@@ -60,15 +59,17 @@ t_SEMICOLON = r'\;'
 
 t_NUMBERINT = r'[0-9]+'
 t_NUMBERFLT = r'[0-9]+\.[0-9]+'
-t_STRING = r'\"[a-zA-Z0-9_]*\"'
 
 t_ignore = " \t"
 
 def  t_ID(t):
     r'[a-z_][a-zA-Z0-9_]*'
-    # print(t)
     t.type = reserved.get(t.value, 'ID')
     return t
+
+def t_STRING(t):
+	r'\".*\"'
+	return t
 
 def t_newline(t):
     r'\n+'
@@ -108,9 +109,13 @@ def p_vars1(p):
 def p_vars(p):
     '''vars : type vars1 vars2 SEMICOLON'''
 
+def p_func2(p):
+	'''func2 : empty
+    		| RETURN expression SEMICOLON
+			| statute func2'''
 def p_func1(p):
-    '''func1 : VOID ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT
-            | type ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT'''
+    '''func1 : VOID ID LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT
+            | type ID LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT'''
 def p_funcg(p):
     '''funcg : FUNC func1'''
 
@@ -145,15 +150,15 @@ def p_expression(p):
 
 def p_exp1(p):
     '''exp1 : empty
-            | PLUS term exp1
-            | MINUS term exp1'''
+            | PLUS exp exp1
+            | MINUS exp exp1'''
 def p_exp(p):
     '''exp : term exp1'''
 
 def p_term1(p):
     '''term1 : empty
-            | TIMES term1
-            | DIVIDE term1'''
+            | TIMES term term1
+            | DIVIDE term term1'''
 def p_term(p):
     '''term : factor term1'''
 
@@ -166,12 +171,12 @@ def p_factor(p):
             | factor1 constant'''
 
 def p_statute(p):
-    '''statute : assignement
+    '''statute : call
+            | assignement
             | vars
             | condition
             | readg
             | write
-            | call
             | cycle'''
 
 def p_cycle(p):
