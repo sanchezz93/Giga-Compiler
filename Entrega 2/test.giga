@@ -1,0 +1,27 @@
+module id {
+	int i = 0;
+
+	func float fn(bool l) {
+		int i = 0;
+		return 2;
+	}
+
+	main {
+		int i[0] = [4, 3];
+		i[0] = 2;
+		while (0 >= 0) {
+			if (0 == 1) {
+				fun(1);
+				fuc(i, d);
+			} elseif (0 > 0) {
+				id = -10;
+				id = false && true;
+				id = (0+2/3)*2;
+			} else {
+				read(o);
+				print("print while int module");
+				print(o);
+			}
+		}
+	}
+}
