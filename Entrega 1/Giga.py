@@ -16,11 +16,15 @@ reserved = {
     'true' : 'TRUE',
     'false' : 'FALSE',
     'void' : 'VOID',
-    'while' : 'WHILE'
+    'while' : 'WHILE',
+    'bool' : 'TBOOL',
+    'int' : 'TINT',
+    'float' : 'TFLOAT',
+    'char' : 'TCHAR',
+    'string' : 'TSTRING'
 }
 
 tokens = [
-	'TYPE',
     'ASSIGN', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
     'LESSTHAN', 'GREATERTHAN', 'LESSTHANEQ', 'GREATERTHANEQ', 'EQUAL', 'DIFFERENT', 'OR', 'AND',
     'LEFTBKT', 'RIGHTBKT', 'LEFTSQBKT', 'RIGHTSQBKT', 'LEFTPAREN', 'RIGHTPAREN', 'COMMA', 'SEMICOLON',
@@ -32,19 +36,6 @@ tokens = [
 
 # Tokens
 
-# t_MODULE = r'module'
-# t_MAIN = r'main'
-# t_FUNC = r'func'
-t_TYPE = r'bool|int|float|char|string'
-# t_PRINT = r'print'
-# t_READ = r'read'
-# t_IF = r'if'
-# t_ELSE = r'else'
-# t_ELSEIF = r'elseif'
-# t_TRUE = r'true'
-# t_FALSE = r'false'
-# t_VOID = r'void'
-# t_WHILE = r'while'
 t_ASSIGN = r'='
 t_PLUS = r'\+'
 t_MINUS = r'\-'
@@ -69,12 +60,13 @@ t_SEMICOLON = r'\;'
 
 t_NUMBERINT = r'[0-9]+'
 t_NUMBERFLT = r'[0-9]+\.[0-9]+'
-t_STRING = r'[a-zA-Z0-9_]+'
+t_STRING = r'\"[a-zA-Z0-9_]*\"'
 
 t_ignore = " \t"
 
 def  t_ID(t):
     r'[a-z_][a-zA-Z0-9_]*'
+    # print(t)
     t.type = reserved.get(t.value, 'ID')
     return t
 
@@ -90,12 +82,6 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
-# Parsing rules
-# precedence = (
-#     ('left', '+', '-'),
-#     ('left', '*', '/'),
-#     ('right', 'UMINUS'),
-# )
 
 start = 'moduleg'
 
@@ -111,20 +97,20 @@ def p_module1(p):
             | vars module1
             | funcg module1'''
 
-def p_vars(p):
-    '''vars : TYPE vars1 vars2 SEMICOLON'''
-def p_vars1(p):
-    '''vars1 : ID vars3 ASSIGN constant'''
-def p_vars2(p):
-    '''vars2 : empty
-            | COMMA vars1'''
 def p_vars3(p):
     '''vars3 : empty
             | LEFTSQBKT cteN RIGHTSQBKT'''
+def p_vars2(p):
+    '''vars2 : empty
+            | COMMA vars1'''
+def p_vars1(p):
+    '''vars1 : ID vars3 ASSIGN constant'''
+def p_vars(p):
+    '''vars : type vars1 vars2 SEMICOLON'''
 
 def p_func1(p):
     '''func1 : VOID ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT
-            | TYPE ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT'''
+            | type ID LEFTPAREN arguments RIGHTPAREN LEFTBKT RIGHTBKT'''
 def p_funcg(p):
     '''funcg : FUNC func1'''
 
@@ -181,6 +167,7 @@ def p_factor(p):
 
 def p_statute(p):
     '''statute : assignement
+            | vars
             | condition
             | readg
             | write
@@ -201,9 +188,10 @@ def p_call(p):
 
 def p_arguments1(p):
     '''arguments1 : empty
-            | COMMA TYPE ID arguments1'''
+            | COMMA type ID arguments1'''
 def p_arguments(p):
-    '''arguments : TYPE ID arguments1'''
+    '''arguments : empty
+    		| type ID arguments1'''
 
 def p_constant1(p):
     '''constant1 : empty
@@ -248,7 +236,14 @@ def p_assignement(p):
 def p_varArr(p):
     '''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
 
+def p_type(p):
+	'''type : TBOOL
+			| TINT
+			| TFLOAT
+			| TCHAR
+			| TSTRING'''
 
+# module id { main { int i=0; }}
 
 def p_error(p):
     if p:
@@ -260,11 +255,29 @@ def p_error(p):
 import ply.yacc as yacc
 yacc.yacc()
 
-while 1:
-    try:
-        s = raw_input('')
-    except EOFError:
-        break
-    if not s:
-        continue
-    yacc.parse(s)
+
+# Main
+if __name__ == '__main__':
+	# Check for file
+	if (len(sys.argv) > 1):
+		file = sys.argv[1]
+		# Open file
+		try:
+			f = open(file, 'r')
+			data = f.read()
+			f.close()
+			# Parse the data
+			if (yacc.parse(data, tracking = True) == 'OK'):
+				print(dirProc);
+		except EOFError:
+	   		print(EOFError)
+	else:
+		print('File missing')
+		while 1:
+		    try:
+		        s = raw_input('')
+		    except EOFError:
+		        break
+		    if not s:
+		        continue
+		    yacc.parse(s)
