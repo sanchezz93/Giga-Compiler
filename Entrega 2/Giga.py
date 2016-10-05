@@ -105,9 +105,18 @@ def p_vars2(p):
     '''vars2 : empty
             | COMMA vars1'''
 def p_vars1(p):
-    '''vars1 : ID vars3 ASSIGN constant'''
+    '''vars1 : ID addVariable vars3 ASSIGN constant'''
 def p_vars(p):
-    '''vars : type vars1 vars2 SEMICOLON'''
+    '''vars : type addType vars1 vars2 SEMICOLON'''
+
+
+def p_addVariable(p):
+    '''addVariable:'''
+    addVariable(p[-1], variableType)
+
+def p_addType(p):
+    '''addType:'''
+    variableType = p[-1]
 
 def p_func2(p):
 	'''func2 : empty
@@ -271,15 +280,28 @@ scope = 'global'
 
 #Functions 
 
-def addVariable(variable, varType, value) : 
+from enum import Enum
+@unique
+class Types(Enum):  
+    boolType = 1
+    boolArrayType = 11
+    intType = 2
+    intArrayType = 22  
+    floatType = 3
+    floatArrayType = 33 
+    charType = 4
+    charArrayType = 44
+
+def addVariable(variable, varType) : 
     if scope == 'global': 
         if not variable in varGlobal.keys():
-            varGlobal[variable] = {'name': variable, 'type': varType, 'value': value}
+            varGlobal[variable] = {'name': variable,'type': varType}
+
         else:
             print("Variable error : Variable is already declared")
     else:
         if not variable in varLocal.keys():
-            varLocal[variable] = {'name': variable, 'type':varType, 'value': value}
+            varLocal[variable] = {'name':variable, 'type': varType}
         else:
             print("Variable error : Variable is already declared")
 
