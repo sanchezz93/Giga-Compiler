@@ -4,6 +4,23 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
+#Define global variables
+
+varGlobal = {}
+varLocal = {}
+funcGlobal = {}
+funcArguments = []
+variableType = None
+funcType = None
+lastVarName = None
+lastFuncName = None
+funcTypeNext = False
+scope = 'global'
+
+
+
+# Tokens
+
 reserved = {
     'module' : 'MODULE',
     'main' : 'MAIN',
@@ -32,8 +49,6 @@ tokens = [
 
     'ID', 'NUMBERINT', 'NUMBERFLT', 'STRING'
 ] + list(reserved.values())
-
-# Tokens
 
 t_ASSIGN = r'='
 t_PLUS = r'\+'
@@ -83,7 +98,6 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
-
 start = 'moduleg'
 
 # For using empty
@@ -100,36 +114,36 @@ def p_module1(p):
 
 def p_vars3(p):
     '''vars3 : empty
-            | LEFTSQBKT cteN RIGHTSQBKT'''
+            | LEFTSQBKT cteN RIGHTSQBKT convertVariableToArray'''
 def p_vars2(p):
     '''vars2 : empty
             | COMMA vars1'''
 def p_vars1(p):
     '''vars1 : ID addVariable vars3 ASSIGN constant'''
 def p_vars(p):
-    '''vars : type addType vars1 vars2 SEMICOLON'''
-
-
-def p_addVariable(p):
-    '''addVariable:'''
-    addVariable(p[-1], variableType)
-
-def p_addType(p):
-    '''addType:'''
-    variableType = p[-1]
+    '''vars : type vars1 vars2 SEMICOLON'''
 
 def p_func2(p):
 	'''func2 : empty
     		| RETURN expression SEMICOLON
 			| statute func2'''
 def p_func1(p):
-    '''func1 : VOID ID LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT
-            | type ID LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT'''
+	'''func1 : VOID saveFuncTypeVoid ID saveFuncName LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT
+	        | funcTypeNext type ID saveFuncName LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT'''
+	global varLocal
+	global funcArguments
+	addFunction(lastFuncName, funcType, funcArguments)
+	print('local vars: %s' % varLocal)
+	varLocal = {}
+	funcArguments = []
 def p_funcg(p):
-    '''funcg : FUNC func1'''
+	'''funcg : FUNC changeToLocalScope func1 changeToGlobalScope'''
 
 def p_maing(p):
-    '''maing : MAIN block'''
+	'''maing : MAIN changeToLocalScope block'''
+	print('local vars: %s' % varLocal)
+	print('global vars: %s' % varGlobal)
+	print('functions: %s' % funcGlobal)
 
 def p_block1(p):
     '''block1 : empty
@@ -142,7 +156,6 @@ def p_write(p):
 
 def p_readg(p):
     '''readg : READ LEFTPAREN ID RIGHTPAREN SEMICOLON'''
-
 
 def p_expression1(p):
     '''expression1 : empty
@@ -202,10 +215,10 @@ def p_call(p):
 
 def p_arguments1(p):
     '''arguments1 : empty
-            | COMMA type ID arguments1'''
+            | COMMA type ID addArgument arguments1'''
 def p_arguments(p):
     '''arguments : empty
-    		| type ID arguments1'''
+    		| type ID addArgument arguments1'''
 
 def p_constant1(p):
     '''constant1 : empty
@@ -251,13 +264,73 @@ def p_varArr(p):
     '''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
 
 def p_type(p):
-	'''type : TBOOL
-			| TINT
-			| TFLOAT
-			| TCHAR
-			| TSTRING'''
+	'''type : TBOOL addType
+			| TINT addType
+			| TFLOAT addType
+			| TCHAR addType
+			| TSTRING addType'''
 
-# module id { main { int i=0; }}
+
+
+# extra grammar
+def p_convertVariableToArray(p):
+	'''convertVariableToArray : empty'''
+	convertVariableToArray()
+
+def p_addVariable(p):
+    '''addVariable : empty'''
+    global lastVarName
+    lastVarName = p[-1]
+    variableName = lastVarName
+    addVariable(variableName, variableType)
+
+def p_saveFuncName(p):
+    '''saveFuncName : empty'''
+    global lastFuncName
+    lastFuncName = p[-1]
+
+def p_funcTypeNext(p):
+	'''funcTypeNext : empty'''
+	global funcTypeNext
+	funcTypeNext = True
+
+def p_saveFuncTypeVoid(p):
+	'''saveFuncTypeVoid : empty'''
+	global funcType
+	funcType = typesValues['void']
+
+def p_addArgument(p):
+    '''addArgument : empty'''
+    global lastVarName
+    global funcArguments
+    lastVarName = p[-1]
+    variableName = lastVarName
+    addVariable(variableName, variableType)
+    funcArguments.append(varLocal[variableName])
+
+def p_addType(p):
+	'''addType : empty'''
+	global variableType
+	global funcTypeNext
+	global funcType
+	if funcTypeNext:
+		funcType = typesValues[p[-1]]
+	else:
+		variableType = typesValues[p[-1]]
+	funcTypeNext = False
+
+def p_changeToLocalScope(p):
+	'''changeToLocalScope : empty'''
+	global scope
+	scope = 'local'
+
+def p_changeToGlobalScope(p):
+	'''changeToGlobalScope : empty'''
+	global scope
+	scope = 'global'
+
+
+
 
 def p_error(p):
     if p:
@@ -271,45 +344,58 @@ yacc.yacc()
 
 
 
-#Define dictionaries 
+#Functions
 
-varGlobal = {}
-varLocal = {}
-funcGlobal = {}
-scope = 'global'
+# from enum import Enum
+# @unique
+# class Types(Enum):
+#     boolType = 1
+#     boolArrayType = 11
+#     intType = 2
+#     intArrayType = 22
+#     floatType = 3
+#     floatArrayType = 33
+#     charType = 4
+#     charArrayType = 44
 
-#Functions 
+typesValues = {'void':0,
+				'bool':1,
+				'boolArray':11,
+				'int':2,
+				'intArray':22,
+				'float':3,
+				'floatArray':33,
+				'char':4,
+				'charArray':44}
 
-from enum import Enum
-@unique
-class Types(Enum):  
-    boolType = 1
-    boolArrayType = 11
-    intType = 2
-    intArrayType = 22  
-    floatType = 3
-    floatArrayType = 33 
-    charType = 4
-    charArrayType = 44
 
-def addVariable(variable, varType) : 
-    if scope == 'global': 
+def addVariable(variable, varType):
+    global varGlobal
+    global varLocal
+    if scope == 'global':
         if not variable in varGlobal.keys():
-            varGlobal[variable] = {'name': variable,'type': varType}
-
+            varGlobal[variable] = {'name':variable, 'type':varType}
         else:
-            print("Variable error : Variable is already declared")
+            print("Variable error : Variable is already declared globally")
     else:
         if not variable in varLocal.keys():
-            varLocal[variable] = {'name':variable, 'type': varType}
+            varLocal[variable] = {'name':variable, 'type':varType}
         else:
-            print("Variable error : Variable is already declared")
+            print("Variable error : Variable is already declared locally")
 
+def convertVariableToArray():
+    global varGlobal
+    global varLocal
+    if scope == 'global':
+        varGlobal[lastVarName]['type'] += 10
+    else:
+       varLocal[lastVarName]['type'] += 10
 
-def addFunction(name, type, parametros):
+def addFunction(name, funType, parameters):
+    global funcGlobal
     if not name in funcGlobal.keys():
-        funcGlobal[name] = { 'name': name, 'type': funType, 'parameters': parameters}
-    else: 
+        funcGlobal[name] = {'name':name, 'type':funType, 'parameters':parameters}
+    else:
         print ("Function error : Function is already declared")
 
 # Main
