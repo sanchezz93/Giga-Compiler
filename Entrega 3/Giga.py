@@ -38,7 +38,6 @@ reserved = {
     'int' : 'TINT',
     'float' : 'TFLOAT',
     'char' : 'TCHAR',
-    'string' : 'TSTRING',
     'return' : 'RETURN'
 }
 
@@ -267,8 +266,7 @@ def p_type(p):
 	'''type : TBOOL addType
 			| TINT addType
 			| TFLOAT addType
-			| TCHAR addType
-			| TSTRING addType'''
+			| TCHAR addType'''
 
 
 
