@@ -109,8 +109,8 @@ Blockly.Blocks['param_coma'] = {
   init: function() {
     this.appendValueInput("params_with_coma")
         .setCheck(null)
-        .appendField(new Blockly.FieldTextInput("' name' "), "name_param")
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE");
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+        .appendField(new Blockly.FieldTextInput("' name' "), "name_param");
     this.setOutput(true, null);
     this.setColour(300);
     this.setTooltip('');

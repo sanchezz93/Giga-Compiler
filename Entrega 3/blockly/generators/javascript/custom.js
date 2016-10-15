@@ -70,8 +70,8 @@ Blockly.JavaScript['function_parameter'] = function(block) {
 };
 
 Blockly.JavaScript['param_coma'] = function(block) {
-  var text_name_param = block.getFieldValue('name_param');
   var dropdown_type = block.getFieldValue('TYPE');
+  var text_name_param = block.getFieldValue('name_param');
   var value_params_with_coma = Blockly.JavaScript.valueToCode(block, 'params_with_coma', Blockly.JavaScript.ORDER_ATOMIC);
   // TODO: Assemble JavaScript into code variable.
   var code = '...';
