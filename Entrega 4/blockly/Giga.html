@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Blockly Demo: Fixed Blockly</title>
+	<script src="blockly_compressed.js"></script>
+	<script src="blocks_compressed.js"></script>
+	<script src="msg/js/en.js"></script>
+	<style>
+		body {
+			background-color: #fff;
+			font-family: sans-serif;
+		}
+		h1 {
+			font-weight: normal;
+			font-size: 140%;
+		}
+	</style>
+</head>
+<body>
+	<p>This is a simple demo of injecting Blockly into a fixed-sized 'div' element.</p>
+
+	<div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+	<xml id="toolbox" style="display: none">
+		<block type="module"></block>
+		<block type="main"></block>	
+		<block type="controls_if"></block>
+		<block type="logic_compare"></block>
+		<block type="math_number"></block>
+		<block type="math_arithmetic"></block>
+		
+	</xml>
+	
+	<script>
+		var workspace = Blockly.inject('blocklyDiv', {media: 'media/', toolbox: document.getElementById('toolbox')});
+	</script>
+
+</body>
+</html>
