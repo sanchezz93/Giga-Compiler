@@ -181,3 +181,30 @@ Blockly.Blocks['variable_with_coma'] = {
   }
 };
 
+
+
+/*
+---------------------------------------------------------
+                        Arrays 
+    
+---------------------------------------------------------
+*/
+
+Blockly.Blocks['array'] = {
+  init: function() {
+    this.appendValueInput("NAME")
+        .setCheck(null)
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+        .appendField(new Blockly.FieldTextInput("'id'"), "name_array")
+        .appendField(new Blockly.FieldNumber(0), "size")
+        .appendField("=");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+
+

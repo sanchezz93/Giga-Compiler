@@ -127,4 +127,24 @@ Blockly.JavaScript['variable_with_coma'] = function(block) {
 
 
 
+/*
+---------------------------------------------------------
+                        Arrays 
+    
+---------------------------------------------------------
+*/
+
+
+
+Blockly.JavaScript['array'] = function(block) {
+  var dropdown_type = block.getFieldValue('TYPE');
+  var text_name_array = block.getFieldValue('name_array');
+  var number_size = block.getFieldValue('size');
+  var value_name = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+  var code = '...;\n';
+  return code;
+};
+
+
 
