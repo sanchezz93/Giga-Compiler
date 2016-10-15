@@ -13,42 +13,8 @@
 <script src="generators/javascript/colour.js"></script>
 <script src="generators/javascript/variables.js"></script>
 <script src="generators/javascript/procedures.js"></script>
-<script src="generators/python.js"></script>
-<script src="generators/python/logic.js"></script>
-<script src="generators/python/loops.js"></script>
-<script src="generators/python/math.js"></script>
-<script src="generators/python/text.js"></script>
-<script src="generators/python/lists.js"></script>
-<script src="generators/python/colour.js"></script>
-<script src="generators/python/variables.js"></script>
-<script src="generators/python/procedures.js"></script>
-<script src="generators/php.js"></script>
-<script src="generators/php/logic.js"></script>
-<script src="generators/php/loops.js"></script>
-<script src="generators/php/math.js"></script>
-<script src="generators/php/text.js"></script>
-<script src="generators/php/lists.js"></script>
-<script src="generators/php/colour.js"></script>
-<script src="generators/php/variables.js"></script>
-<script src="generators/php/procedures.js"></script>
-<script src="generators/lua.js"></script>
-<script src="generators/lua/logic.js"></script>
-<script src="generators/lua/loops.js"></script>
-<script src="generators/lua/math.js"></script>
-<script src="generators/lua/text.js"></script>
-<script src="generators/lua/lists.js"></script>
-<script src="generators/lua/colour.js"></script>
-<script src="generators/lua/variables.js"></script>
-<script src="generators/lua/procedures.js"></script>
-<script src="generators/dart.js"></script>
-<script src="generators/dart/logic.js"></script>
-<script src="generators/dart/loops.js"></script>
-<script src="generators/dart/math.js"></script>
-<script src="generators/dart/text.js"></script>
-<script src="generators/dart/lists.js"></script>
-<script src="generators/dart/colour.js"></script>
-<script src="generators/dart/variables.js"></script>
-<script src="generators/dart/procedures.js"></script>
+<script src="generators/javascript/custom.js"></script>
+<script src="blocks/custom.js"></script>
 <script src="msg/messages.js"></script>
 <script src="blocks/logic.js"></script>
 <script src="blocks/loops.js"></script>
@@ -213,17 +179,12 @@ h1 {
   <form id="options">
     <select name="dir" onchange="document.forms.options.submit()">
       <option value="ltr">LTR</option>
-      <option value="rtl">RTL</option>
     </select>
     <select name="toolbox" onchange="document.forms.options.submit()">
       <option value="categories">Categories</option>
-      <option value="simple">Simple</option>
     </select>
     <select name="side" onchange="document.forms.options.submit()">
       <option value="start">Start</option>
-      <option value="end">End</option>
-      <option value="top">Top</option>
-      <option value="bottom">Bottom</option>
     </select>
   </form>
 
@@ -232,43 +193,12 @@ h1 {
     &nbsp;
     <input type="button" value="Import from XML" onclick="fromXml()" id="import">
     <br>
-    <input type="button" value="To JavaScript" onclick="toCode('JavaScript')">
+    <input type="button" value="To Giga" onclick="toCode('JavaScript')">
     &nbsp;
-    <input type="button" value="To Python" onclick="toCode('Python')">
-    &nbsp;
-    <input type="button" value="To PHP" onclick="toCode('PHP')">
-    &nbsp;
-    <input type="button" value="To Lua" onclick="toCode('Lua')">
-    &nbsp;
-    <input type="button" value="To Dart" onclick="toCode('Dart')">
     <br>
     <textarea id="importExport" style="width: 26%; height: 12em"
       onchange="taChange();" onkeyup="taChange()"></textarea>
   </p>
-
-  <p>
-    Log events: &nbsp;
-    <input type="checkbox" onclick="logEvents(this.checked)" id="logCheck">
-  </p>
-
-  <xml id="toolbox-simple" style="display: none">
-    <block type="controls_if"></block>
-    <block type="logic_compare"></block>
-    <!-- <block type="control_repeat"></block> -->
-    <block type="logic_operation"></block>
-    <block type="controls_repeat_ext">
-      <value name="TIMES">
-        <shadow type="math_number">
-          <field name="NUM">10</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="logic_operation"></block>
-    <block type="logic_negate"></block>
-    <block type="logic_boolean"></block>
-    <block type="logic_null" disabled="true"></block>
-    <block type="logic_ternary"></block>
-  </xml>
 
   <xml id="toolbox-categories" style="display: none">
     <category name="Logic" colour="210">
@@ -279,6 +209,19 @@ h1 {
       <block type="logic_boolean"></block>
       <block type="logic_null" disabled="true"></block>
       <block type="logic_ternary"></block>
+    </category>
+    <category name="Custom" colour="20">
+        <block type="module"></block>
+        <block type="id_without_coma"></block>
+        <block type="main"></block>
+        <block type="function_with_type"></block>
+        <block type="function_with_void"></block>
+        <block type="function_parameter"></block>
+        <block type="param_coma"></block>
+        <block type="function_call"></block>
+        <block type="return"></block>
+        <block type="variable_without_coma"></block>
+        <block type="variable_with_coma"></block>
     </category>
     <category name="Loops" colour="120">
       <block type="controls_repeat_ext">
@@ -524,44 +467,6 @@ h1 {
         </value>
       </block>
       <block type="lists_sort"></block>
-    </category>
-    <category name="Colour" colour="20">
-      <block type="colour_picker"></block>
-      <block type="colour_random"></block>
-      <block type="colour_rgb">
-        <value name="RED">
-          <shadow type="math_number">
-            <field name="NUM">100</field>
-          </shadow>
-        </value>
-        <value name="GREEN">
-          <shadow type="math_number">
-            <field name="NUM">50</field>
-          </shadow>
-        </value>
-        <value name="BLUE">
-          <shadow type="math_number">
-            <field name="NUM">0</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="colour_blend">
-        <value name="COLOUR1">
-          <shadow type="colour_picker">
-            <field name="COLOUR">#ff0000</field>
-          </shadow>
-        </value>
-        <value name="COLOUR2">
-          <shadow type="colour_picker">
-            <field name="COLOUR">#3333ff</field>
-          </shadow>
-        </value>
-        <value name="RATIO">
-          <shadow type="math_number">
-            <field name="NUM">0.5</field>
-          </shadow>
-        </value>
-      </block>
     </category>
     <sep></sep>
     <category name="Variables" colour="330" custom="VARIABLE"></category>
