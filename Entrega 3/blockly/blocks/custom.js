@@ -8,12 +8,22 @@
 */
 Blockly.Blocks['module'] = {
   init: function() {
-    this.appendValueInput("MODULE_ID")
-        .setCheck("String")
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("module");
-    this.appendStatementInput("NAME")
+    this.appendDummyInput()
+        .appendField("Module")
+        .appendField(new Blockly.FieldTextInput("'id'"), "ID");
+    this.appendStatementInput("Input")
         .setCheck(["main", "vars", "funcs"]);
+    this.setColour(330);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.Blocks['id_without_coma'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldTextInput("'id'"), "ID");
+    this.setOutput(true, null);
     this.setColour(330);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
@@ -81,8 +91,8 @@ Blockly.Blocks['function_with_void'] = {
 Blockly.Blocks['function_parameter'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField(new Blockly.FieldTextInput("'name'"), "name_param")
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE");
+         .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int",      "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+        .appendField(new Blockly.FieldTextInput("'name'"), "name_param");
     this.setOutput(true, null);
     this.setColour(210);
     this.setTooltip('');
@@ -142,22 +152,24 @@ Blockly.Blocks['variable_without_coma'] = {
   init: function() {
     this.appendDummyInput()
         .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE")
-        .appendField(new Blockly.FieldTextInput("'name'"), "NAME_VARIABLE");
-    this.setOutput(true, null);
+        .appendField(new Blockly.FieldTextInput("'id'"), "VARNAME")
+        .appendField("=")
+        .appendField(new Blockly.FieldTextInput("-"), "VALUE");
+    this.setPreviousStatement(true, null);
     this.setColour(180);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
 };
 
-
-
 Blockly.Blocks['variable_with_coma'] = {
   init: function() {
-    this.appendValueInput("variables_with_coma")
+    this.appendValueInput("NAME")
         .setCheck(null)
-        .appendField(new Blockly.FieldTextInput("'name'"), "VAR")
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE");
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+        .appendField(new Blockly.FieldTextInput("'id'"), "VARNAME")
+        .appendField("=")
+        .appendField(new Blockly.FieldTextInput("-"), "VALUE");
     this.setPreviousStatement(true, null);
     this.setColour(180);
     this.setTooltip('');
