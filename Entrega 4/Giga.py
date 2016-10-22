@@ -111,6 +111,10 @@ def p_module1(p):
             | vars module1
             | funcg module1'''
 
+def p_vars4(p):
+    '''vars4 : constant
+            | PLUS constant
+            | MINUS constant'''
 def p_vars3(p):
     '''vars3 : empty
             | LEFTSQBKT cteN RIGHTSQBKT convertVariableToArray'''
@@ -118,7 +122,7 @@ def p_vars2(p):
     '''vars2 : empty
             | COMMA vars1'''
 def p_vars1(p):
-    '''vars1 : ID addVariable vars3 ASSIGN constant'''
+    '''vars1 : ID addVariable vars3 ASSIGN vars4'''
 def p_vars(p):
     '''vars : type vars1 vars2 SEMICOLON'''
 
