@@ -70,7 +70,7 @@ Blockly.JavaScript['param_comma'] = function(block) {
   // TODO: Assemble JavaScript into code variable.
   var code = dropdown_type + ' ' + text_name_param + ',';
   // TODO: Change ORDER_NONE to the correct strength.
-  return [code];//[code, Blockly.JavaScript.ORDER_ATOMIC];
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 
@@ -154,7 +154,7 @@ Blockly.JavaScript['variable_asignation'] = function(block) {
   var text_id = block.getFieldValue('ID');
   var value_name = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
   // TODO: Assemble JavaScript into code variable.
-  var code = text_id + '=';
+  var code = text_id + '=' + value_name;
   return code;
 };
 
