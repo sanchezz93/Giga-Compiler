@@ -138,6 +138,17 @@ Blockly.Blocks['function_call_no_param'] = {
 };
 
 
+Blockly.Blocks['function_return_params'] = {
+  init: function() {
+    this.appendValueInput("function")
+        .setCheck(null)
+        .appendField(new Blockly.FieldTextInput("func"), "FUNC");
+    this.setOutput(true, null);
+    this.setColour(330);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
 
 Blockly.Blocks['return'] = {
   init: function() {
@@ -395,6 +406,31 @@ Blockly.Blocks['print'] = {
   }
 };
 
+
+/*
+---------------------------------------------------------
+                        Operations  
+    
+---------------------------------------------------------
+*/
+
+
+
+
+Blockly.Blocks['parentesis'] = {
+  init: function() {
+    this.appendValueInput("VALUE")
+        .setCheck(null)
+        .appendField("(");
+    this.appendDummyInput()
+        .appendField(")");
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.setColour(120);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
 
 
 

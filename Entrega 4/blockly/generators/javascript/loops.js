@@ -71,6 +71,9 @@ Blockly.JavaScript['controls_whileUntil'] = function(block) {
   if (until) {
     argument0 = '!' + argument0;
   }
+  argument0 = argument0.replace(/[()]/g,'');
+  argument0 = argument0.replace(/[¿]/g,'(');
+  argument0 = argument0.replace(/[?]/g,')');
   return 'while (' + argument0 + ') {\n' + branch + '}\n';
 };
 

@@ -35,11 +35,17 @@ Blockly.JavaScript['controls_if'] = function(block) {
   var argument = Blockly.JavaScript.valueToCode(block, 'IF' + n,
       Blockly.JavaScript.ORDER_NONE) || 'false';
   var branch = Blockly.JavaScript.statementToCode(block, 'DO' + n);
+  argument = argument.replace(/[()]/g,'');
+  argument = argument.replace(/[¿]/g,'(');
+  argument = argument.replace(/[?]/g,')');
   var code = 'if (' + argument + ') {\n' + branch + '}';
   for (n = 1; n <= block.elseifCount_; n++) {
     argument = Blockly.JavaScript.valueToCode(block, 'IF' + n,
         Blockly.JavaScript.ORDER_NONE) || 'false';
     branch = Blockly.JavaScript.statementToCode(block, 'DO' + n);
+    argument = argument.replace(/[()]/g,'');
+    argument = argument.replace(/[¿]/g,'(');
+    argument = argument.replace(/[?]/g,')');
     code += ' else if (' + argument + ') {\n' + branch + '}';
   }
   if (block.elseCount_) {
