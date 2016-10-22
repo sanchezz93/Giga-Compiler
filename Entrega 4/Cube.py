@@ -106,6 +106,14 @@ varDictionary['float!=float'] = BOOL
 varDictionary['char!=char']  = BOOL
 
 
+#And
+varDictionary['bool&&bool'] = BOOL
+
+
+#Or
+varDictionary['bool||bool'] = BOOL
+
+
 def getTypeString(type):
 	if type == 1:
 		return 'bool'

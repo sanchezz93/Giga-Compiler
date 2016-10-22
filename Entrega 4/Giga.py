@@ -38,6 +38,7 @@ operationStack = []
 typeStack = []
 
 
+constants = {'true':{'value':True, 'type':BOOL}, 'false':{'value':False, 'type':BOOL}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
@@ -176,7 +177,7 @@ def p_funcg(p):
 
 def p_maing(p):
 	'''maing : MAIN changeToLocalScope block'''
-	addQuadruple('+', 'int', 'int', 'int')
+	print(quadruples)
 	# print('local vars: %s' % varLocal)
 	# print('global vars: %s' % varGlobal)
 	# print('functions: %s' % funcGlobal)
@@ -197,14 +198,14 @@ def p_readg(p):
 
 def p_expression1(p):
 	'''expression1 : empty
-			| GREATERTHANEQ exp
-			| LESSTHANEQ exp
-			| GREATERTHAN exp
-			| LESSTHAN exp
-			| EQUAL exp
-			| DIFFERENT exp
-			| OR exp
-			| AND exp'''
+			| GREATERTHANEQ saveOperation exp expressionEnded
+			| LESSTHANEQ saveOperation exp expressionEnded
+			| GREATERTHAN saveOperation exp expressionEnded
+			| LESSTHAN saveOperation exp expressionEnded
+			| EQUAL saveOperation exp expressionEnded
+			| DIFFERENT saveOperation exp expressionEnded
+			| OR saveOperation exp expressionEnded
+			| AND saveOperation exp expressionEnded'''
 def p_expression(p):
 	'''expression : exp expression1'''
 
@@ -227,52 +228,52 @@ def p_factor1(p):
 	'''factor1 : constant
 			| PLUS constant
 			| MINUS constant'''
-
+	global operandStack
+	print(operandStack)
+	operand = {}
 	if len(p) == 3:
-		p[0] = p[1] + str(p[2])
-		# Verify PLUS & MINUS are used only on INT & FLOATS
-		if ((isinstance(p[2], int)) or (isinstance(p[2], float))):
-			if (p[1] == '-'):
-				cuadruplos.pOperandos.append(p[2]*-1)
-			else:
-				cuadruplos.pOperandos.append(p[2])
+		operand = getOperand(p[2])
+	# 	p[0] = p[1] + str(p[2])
+	# 	# Verify PLUS & MINUS are used only on INT & FLOATS
+	# 	if ((isinstance(p[2], int)) or (isinstance(p[2], float))):
+	# 		if (p[1] == '-'):
+	# 			cuadruplos.pOperandos.append(p[2]*-1)
+	# 		else:
+	# 			cuadruplos.pOperandos.append(p[2])
 
-			# Insert Type of varcte to pTipos
-			if isinstance(p[2], int):
-				cuadruplos.pTipos.append(INT)
-			elif isinstance(p[2], float):
-				cuadruplos.pTipos.append(FLOAT)
-		else:
-			print("Operator mismatch you have a %s before a type: %s at line: %s" %(p[1], type(p[2]), lexer.lineno))
-			exit(1)
+	# 		# Insert Type of varcte to pTipos
+	# 		if isinstance(p[2], int):
+	# 			cuadruplos.pTipos.append(INT)
+	# 		elif isinstance(p[2], float):
+	# 			cuadruplos.pTipos.append(FLOAT)
+	# 	else:
+	# 		print("Operator mismatch you have a %s before a type: %s at line: %s" %(p[1], type(p[2]), lexer.lineno))
+	# 		exit(1)
 	else:
-		p[0] = p[1]
-		print("VARCTE operando: %s" %(str(p[1])))
-		cuadruplos.pOperandos.append(p[1])
-		print("operadores VARCTE encontrada: %s" %(str(cuadruplos.pOperandos)))
-		# Insert Type of varcte to pTipos
-		if isinstance(p[1], int):
-			cuadruplos.pTipos.append(INT)
-		elif isinstance(p[1], float):
-			cuadruplos.pTipos.append(FLOAT)
-		elif isinstance(p[1], bool):
-			cuadruplos.pTipos.append(BOOL)
-		else:
-			if globalVars.has_key(p[1]):
-				cuadruplos.pTipos.append(globalVars[p[1]][0])
-			elif function_ptr != "GLOBAL" and functionsDir[function_ptr][1].has_key(p[1]):
-				cuadruplos.pTipos.append(functionsDir[function_ptr][1][p[1]][0])
-			else:
-			cuadruplos.pTipos.append(STRING)
+		operand = getOperand(p[1])
+	# 	p[0] = p[1]
+	# 	print("VARCTE operando: %s" %(str(p[1])))
+	# 	cuadruplos.pOperandos.append(p[1])
+	# 	print("operadores VARCTE encontrada: %s" %(str(cuadruplos.pOperandos)))
+	# 	# Insert Type of varcte to pTipos
+	# 	if isinstance(p[1], int):
+	# 		cuadruplos.pTipos.append(INT)
+	# 	elif isinstance(p[1], float):
+	# 		cuadruplos.pTipos.append(FLOAT)
+	# 	elif isinstance(p[1], bool):
+	# 		cuadruplos.pTipos.append(BOOL)
+	# 	else:
+	# 		if globalVars.has_key(p[1]):
+	# 			cuadruplos.pTipos.append(globalVars[p[1]][0])
+	# 		elif function_ptr != "GLOBAL" and functionsDir[function_ptr][1].has_key(p[1]):
+	# 			cuadruplos.pTipos.append(functionsDir[function_ptr][1][p[1]][0])
+	# 		else:
+	# 		cuadruplos.pTipos.append(STRING)
+	operandStack.append(operand)
+	typeStack.append(variableType)
 def p_factor(p):
 	'''factor : LEFTPAREN addFakeBottom expression RIGHTPAREN removeFakeBottom factorEnded
-			| factor1 factorEnded'''
-
-# typeStack.append(variableType)
-# if scope == 'global':
-# 	operandStack.append(varGlobal[variableName])
-# else:
-# 	operandStack.append(varLocal[variableName])
+			| factor1 factorEnded'''	
 
 def p_statute(p):
 	'''statute : call
@@ -310,6 +311,8 @@ def p_constant1(p):
 def p_constant(p):
 	'''constant : cte
 			| LEFTSQBKT cte constant1 RIGHTSQBKT'''
+	if len(p) == 2:
+		p[0] = p[1]
 
 def p_cte(p):
 	'''cte : ID
@@ -318,11 +321,12 @@ def p_cte(p):
 			| FALSE
 			| cteN
 			| cteS'''
+	p[0] = p[1]
 
 def p_cteN(p):
-	'''cteN : NUMBERINT
-			| NUMBERFLT'''
-
+	'''cteN : NUMBERINT addConstant
+			| NUMBERFLT addConstant'''
+	p[0] = p[1]
 def p_cteS(p):
 	'''cteS : STRING'''
 
@@ -367,7 +371,17 @@ def p_addVariable(p):
 	variableName = lastVarName
 	addVariable(variableName, variableType)
 	
-
+def p_addConstant(p):
+	'''addConstant : empty'''
+	constType = -1
+	cte = num(p[-1])
+	if type(cte) is int:
+		constType = INT
+	else:
+		constType = FLOAT
+	global constants
+	if not str(cte) in constants.keys():
+		constants[str(cte)] = {'value':cte, 'type':constType}
 
 def p_saveFuncName(p):
 	'''saveFuncName : empty'''
@@ -412,32 +426,63 @@ def p_saveOperation(p):
 
 def p_termEnded(p):
 	'''termEnded : empty'''
+	global operationStack
+	global operandStack
 	if len(operationStack) > 0:
-		if operationStack[-1] == '+' or operationStack[-1] == '-':
-			operand1 = operandStack.pop()
-			operation = operationStack.pop()
+		if operationStack[-1] == '+' or operationStack[-1] == '-' or operationStack[-1] == '||':
 			operand2 = operandStack.pop()
-			if getResultType(operand1['type']%10, operation, operand2['type']%10) > 0:
+			operation = operationStack.pop()
+			operand1 = operandStack.pop()
+			print(operand1)
+			print(operation)
+			print(operand2)
+			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
+			if resultType > 0:
 				addQuadruple(operation, operand1, operand2, 0)
-				print(quadruples)
+				typeStack.append(resultType)
+				operandStack.append({'value':0, 'type':resultType})
 			else:
-				print('Type mismatch')
+				print('Error: Type mismatch')
+				exit(1)
 
 def p_factorEnded(p):
 	'''factorEnded : empty'''
 	global operationStack
 	global operandStack
 	if len(operationStack) > 0:
-		if operationStack[-1] == '*' or operationStack[-1] == '/':
+		if operationStack[-1] == '*' or operationStack[-1] == '/' or operationStack[-1] == '&&':
 			operand1 = operandStack.pop()
 			operation = operationStack.pop()
 			operand2 = operandStack.pop()
-			print(operand1['type'])
+			print(operand1)
 			print(operation)
-			print(operand2['type'])
-			if getResultType(operand1['type']%10, operation, operand2['type']%10) > 0:
+			print(operand2)
+			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
+			if resultType > 0:
 				addQuadruple(operation, operand1, operand2, 0)
-				print(quadruples)
+				typeStack.append(resultType)
+				operandStack.append({'value':0, 'type':resultType})
+			else:
+				print('Error: Type mismatch')
+				exit(1)
+
+def p_expressionEnded(p):
+	'''expressionEnded : empty'''
+	global operationStack
+	global operandStack
+	if len(operationStack) > 0:
+		if operationStack[-1] == '<' or operationStack[-1] == '>' or operationStack[-1] == '<=' or operationStack[-1] == '>=' or operationStack[-1] == '==' or operationStack[-1] == '!=':
+			operand1 = operandStack.pop()
+			operation = operationStack.pop()
+			operand2 = operandStack.pop()
+			print(operand1)
+			print(operation)
+			print(operand2)
+			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
+			if resultType > 0:
+				addQuadruple(operation, operand1, operand2, 0)
+				typeStack.append(resultType)
+				operandStack.append({'value':0, 'type':resultType})
 			else:
 				print('Type mismatch')
 
@@ -469,6 +514,7 @@ def p_error(p):
 		print("Syntax error at '%s'" % p)#p.value)
 	else:
 		print("Syntax error at EOF")
+	exit(1)
 
 
 import ply.yacc as yacc
@@ -486,11 +532,13 @@ def addVariable(variable, varType):
 			varGlobal[variable] = {'name':variable, 'type':varType}
 		else:
 			print("Variable error : Variable is already declared globally")
+			exit(1)
 	else:
 		if not variable in varLocal.keys():
 			varLocal[variable] = {'name':variable, 'type':varType}
 		else:
 			print("Variable error : Variable is already declared locally")
+			exit(1)
 
 def convertVariableToArray():
 	global varGlobal
@@ -505,12 +553,26 @@ def addFunction(name, funType, parameters):
 	if not name in funcGlobal.keys():
 		funcGlobal[name] = {'name':name, 'type':funType, 'parameters':parameters}
 	else:
-		print ("Function error : Function is already declared")
+		print("Function error : Function is already declared")
+		exit(1)
 
 def addQuadruple(operation, var1, var2, result):
 	global quadruples
 	quadruples.append({'op':operation, 'var1':var1, 'var2':var2, 'result':result})
 
+def num(s):
+	try:
+		return int(s)
+	except ValueError:
+		return float(s)
+
+def getOperand(key):
+	if key in constants.keys():
+		return constants[key]
+	elif key in varLocal.keys():
+		return varLocal[key]
+	elif key in varGlobal.keys():
+		return varGlobal[key]
 
 # Main
 if __name__ == '__main__':
