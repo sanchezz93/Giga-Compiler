@@ -9,34 +9,34 @@ if sys.version_info[0] >= 3:
 #Define global variables
 
 globalVarCount = {}			#10000
-globalVarCount[BOOL] = 0	#10000
-globalVarCount[INT] = 0		#12500
-globalVarCount[FLOAT] = 0	#15000
-globalVarCount[CHAR] = 0	#17500
+globalVarCount[BOOL] = 10000
+globalVarCount[INT] = 12500
+globalVarCount[FLOAT] = 15000
+globalVarCount[CHAR] = 17500
 
 localVarCount = {}			#20000
-localVarCount[BOOL] = 0		#20000
-localVarCount[INT] = 0		#22500
-localVarCount[FLOAT] = 0	#25000
-localVarCount[CHAR] = 0		#27500
+localVarCount[BOOL] = 20000
+localVarCount[INT] = 22500
+localVarCount[FLOAT] = 25000
+localVarCount[CHAR] = 27500
 
 tempVarCount = {}			#30000
-tempVarCount[BOOL] = 0		#30000
-tempVarCount[INT] = 0		#32500
-tempVarCount[FLOAT] = 0		#35000
-tempVarCount[CHAR] = 0		#37500
+tempVarCount[BOOL] = 30000
+tempVarCount[INT] = 32500
+tempVarCount[FLOAT] = 35000
+tempVarCount[CHAR] = 37500
 
 constVarCount = {}			#40000
-constVarCount[BOOL] = 2		#40000
-constVarCount[INT] = 1		#42500
-constVarCount[FLOAT] = 0	#45000
-constVarCount[CHAR] = 0		#47500
+constVarCount[BOOL] = 40002
+constVarCount[INT] = 42501
+constVarCount[FLOAT] = 45000
+constVarCount[CHAR] = 47500
 
 quadruples = []
 operandStack = []
 operationStack = []
 
-constants = {'true':{'value':True, 'type':BOOL, 'dir':''}, 'false':{'value':False, 'type':BOOL}, '-1':{'type':2, 'dir':0, 'value':-1}}
+constants = {'true':{'value':True, 'type':BOOL, 'dir':'1'}, 'false':{'value':False, 'type':BOOL, 'dir':'0'}, '-1':{'type':2, 'dir':0, 'value':-1}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
@@ -255,8 +255,10 @@ def p_expression1(p):
 			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
 			print(resultType)
 			if resultType > 0:
-				addQuadruple(operation, operand1, operand2, 0)
-				operandStack.append({'value':0, 'type':resultType})
+				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
+				addQuadruple(operation, operand1, operand2, tempVar)
+				operandStack.append(tempVar)
+				tempVarCount[resultType] += 1
 			else:
 				print('Error: Expression type mismatch')
 				exit(1)
@@ -290,10 +292,15 @@ def p_factor1(p):
 			| PLUS constant
 			| MINUS constant'''
 	global operandStack
-	print(operandStack)
 	operand = {}
 	if len(p) == 3:
 		operand = getOperand(p[2])
+		if p[1] == '-':
+			resultType = getResultType(operand['type']%10, '*', INT)
+			tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
+			addQuadruple('*', constants['-1'], operand, tempVar)
+			operand = tempVar
+			tempVarCount[resultType] += 1
 	else:
 		operand = getOperand(p[1])
 	operandStack.append(operand)
@@ -483,8 +490,10 @@ def p_termEnded(p):
 			operand1 = operandStack.pop()
 			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
 			if resultType > 0:
-				addQuadruple(operation, operand1, operand2, 0)
-				operandStack.append({'dir':0, 'type':resultType})
+				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
+				addQuadruple(operation, operand1, operand2, tempVar)
+				operandStack.append(tempVar)
+				tempVarCount[resultType] += 1
 			else:
 				print('Error: Term type mismatch')
 				exit(1)
@@ -501,8 +510,10 @@ def p_factorEnded(p):
 			operand1 = operandStack.pop()
 			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
 			if resultType > 0:
-				addQuadruple(operation, operand1, operand2, 0)
-				operandStack.append({'dir':0, 'type':resultType})
+				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
+				addQuadruple(operation, operand1, operand2, tempVar)
+				operandStack.append(tempVar)
+				tempVarCount[resultType] += 1
 			else:
 				print('Error: Factor type mismatch')
 				exit(1)
@@ -610,14 +621,16 @@ def resetLocalCounters():
 	global tempVarCount
 	varLocal = {}
 	funcParameters = []
-	localVarCount[BOOL] = 0
-	localVarCount[INT] = 0
-	localVarCount[FLOAT] = 0
-	localVarCount[CHAR] = 0
-	tempVarCount[BOOL] = 0
-	tempVarCount[INT] = 0
-	tempVarCount[FLOAT] = 0
-	tempVarCount[CHAR] = 0
+	localVarCount[BOOL] = 20000
+	localVarCount[INT] = 22500
+	localVarCount[FLOAT] = 25000
+	localVarCount[CHAR] = 27500
+	tempVarCount[BOOL] = 30000
+	tempVarCount[INT] = 32500
+	tempVarCount[FLOAT] = 35000
+	tempVarCount[CHAR] = 37500
+
+
 
 # Main
 if __name__ == '__main__':
