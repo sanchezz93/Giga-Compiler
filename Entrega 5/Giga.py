@@ -8,41 +8,39 @@ if sys.version_info[0] >= 3:
 
 #Define global variables
 
-globalVarCount = {}
-globalVarCount['bool'] = 0
-globalVarCount['int'] = 0
-globalVarCount['float'] = 0
-globalVarCount['char'] = 0
+globalVarCount = {}			#10000
+globalVarCount[BOOL] = 0	#10000
+globalVarCount[INT] = 0		#12500
+globalVarCount[FLOAT] = 0	#15000
+globalVarCount[CHAR] = 0	#17500
 
-localVarCount = {}
-localVarCount['bool'] = 0
-localVarCount['int'] = 0
-localVarCount['float'] = 0
-localVarCount['char'] = 0
+localVarCount = {}			#20000
+localVarCount[BOOL] = 0		#20000
+localVarCount[INT] = 0		#22500
+localVarCount[FLOAT] = 0	#25000
+localVarCount[CHAR] = 0		#27500
 
-tempVarCount = {}
-tempVarCount['bool'] = 0
-tempVarCount['int'] = 0
-tempVarCount['float'] = 0
-tempVarCount['char'] = 0
+tempVarCount = {}			#30000
+tempVarCount[BOOL] = 0		#30000
+tempVarCount[INT] = 0		#32500
+tempVarCount[FLOAT] = 0		#35000
+tempVarCount[CHAR] = 0		#37500
 
-constVarCount = {}
-constVarCount['bool'] = 0
-constVarCount['int'] = 0
-constVarCount['float'] = 0
-constVarCount['char'] = 0
+constVarCount = {}			#40000
+constVarCount[BOOL] = 2		#40000
+constVarCount[INT] = 1		#42500
+constVarCount[FLOAT] = 0	#45000
+constVarCount[CHAR] = 0		#47500
 
 quadruples = []
 operandStack = []
 operationStack = []
-typeStack = []
 
-
-constants = {'true':{'value':True, 'type':BOOL}, 'false':{'value':False, 'type':BOOL}}
+constants = {'true':{'value':True, 'type':BOOL, 'dir':''}, 'false':{'value':False, 'type':BOOL}, '-1':{'type':2, 'dir':0, 'value':-1}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
-funcArguments = []
+funcParameters = []
 variableType = None
 funcType = None
 lastVarName = None
@@ -148,6 +146,11 @@ def p_vars4(p):
 	'''vars4 : constant
 			| PLUS constant
 			| MINUS constant'''
+	p[0] = p[1]
+	if len(p) > 2:
+		p[0] = p[2]
+		if p[1] == '-':
+			p[0] = '-'+p[2]
 def p_vars3(p):
 	'''vars3 : empty
 			| LEFTSQBKT cteN RIGHTSQBKT convertVariableToArray'''
@@ -156,6 +159,34 @@ def p_vars2(p):
 			| COMMA vars1'''
 def p_vars1(p):
 	'''vars1 : ID addVariable vars3 ASSIGN vars4'''
+	print('vars1')
+	print(p[1])
+	print(p[5])
+	var = {}
+	if p[1] in varLocal.keys():
+		var = varLocal[p[1]]
+	else:
+		var = varGlobal[p[1]]
+	if '-' in p[5]:
+		p[5] = p[5].replace('-','')
+		addQuadruple('*', constants['-1'], constants[p[5]], var)
+	else:
+		addQuadruple('=', constants[p[5]], '', var)
+
+
+	# var1 = {}
+	# if p[1] in varLocal.keys():
+	# 	var1 = varLocal[p[1]]
+	# else:
+	# 	var1 = varGlobal[p[1]]
+	# operand = operandStack.pop()
+	# resultType = getResultType(var1['type'], '=', operand['type']%10)
+	# if resultType > 0:
+	# 	addQuadruple('=', operand, '', var1)
+	# else:
+	# 	print('Error: Assignment type mismatch')
+	# 	exit(1)
+
 def p_vars(p):
 	'''vars : type vars1 vars2 SEMICOLON'''
 
@@ -164,23 +195,26 @@ def p_func2(p):
 			| RETURN expression SEMICOLON
 			| statute func2'''
 def p_func1(p):
-	'''func1 : VOID saveFuncTypeVoid ID saveFuncName LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT
-			| funcTypeNext type ID saveFuncName LEFTPAREN arguments RIGHTPAREN LEFTBKT func2 RIGHTBKT'''
-	global varLocal
-	global funcArguments
-	addFunction(lastFuncName, funcType, funcArguments)
-	#print('local vars: %s' % varLocal)
-	varLocal = {}
-	funcArguments = []
+	'''func1 : VOID saveFuncTypeVoid ID saveFuncName LEFTPAREN parameters RIGHTPAREN LEFTBKT func2 RIGHTBKT
+			| funcTypeNext type ID saveFuncName LEFTPAREN parameters RIGHTPAREN LEFTBKT func2 RIGHTBKT'''
+	addFunction(lastFuncName, funcType, funcParameters)
+	print('local vars: %s' % varLocal)
+	resetLocalCounters()
 def p_funcg(p):
 	'''funcg : FUNC changeToLocalScope func1 changeToGlobalScope'''
 
 def p_maing(p):
 	'''maing : MAIN changeToLocalScope block'''
+	print('-------- quadruples')
 	print(quadruples)
-	# print('local vars: %s' % varLocal)
-	# print('global vars: %s' % varGlobal)
-	# print('functions: %s' % funcGlobal)
+	print('--------')
+	print('-------- stacks')
+	print(operandStack)
+	print(operationStack)
+	print('--------')
+	print('global vars: %s' % varGlobal)
+	print('functions: %s' % funcGlobal)
+	print('constants: %s' % constants)
 
 def p_block1(p):
 	'''block1 : empty
@@ -198,14 +232,34 @@ def p_readg(p):
 
 def p_expression1(p):
 	'''expression1 : empty
-			| GREATERTHANEQ saveOperation exp expressionEnded
-			| LESSTHANEQ saveOperation exp expressionEnded
-			| GREATERTHAN saveOperation exp expressionEnded
-			| LESSTHAN saveOperation exp expressionEnded
-			| EQUAL saveOperation exp expressionEnded
-			| DIFFERENT saveOperation exp expressionEnded
-			| OR saveOperation exp expressionEnded
-			| AND saveOperation exp expressionEnded'''
+			| GREATERTHANEQ saveOperation exp
+			| LESSTHANEQ saveOperation exp
+			| GREATERTHAN saveOperation exp
+			| LESSTHAN saveOperation exp
+			| EQUAL saveOperation exp
+			| DIFFERENT saveOperation exp
+			| OR saveOperation exp
+			| AND saveOperation exp'''
+	global operationStack
+	global operandStack
+	if len(operationStack) > 0:
+		if operationStack[-1] == '<' or operationStack[-1] == '>' or operationStack[-1] == '<=' or operationStack[-1] == '>=' or operationStack[-1] == '==' or operationStack[-1] == '!=':
+			operand1 = operandStack.pop()
+			operation = operationStack.pop()
+			operand2 = operandStack.pop()
+			print('???')
+			print(operand1)
+			print(operation)
+			print(operand2)
+			print('???')
+			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
+			print(resultType)
+			if resultType > 0:
+				addQuadruple(operation, operand1, operand2, 0)
+				operandStack.append({'value':0, 'type':resultType})
+			else:
+				print('Error: Expression type mismatch')
+				exit(1)
 def p_expression(p):
 	'''expression : exp expression1'''
 
@@ -214,8 +268,15 @@ def p_exp1(p):
 	'''exp1 : empty
 			| PLUS saveOperation exp exp1
 			| MINUS saveOperation exp exp1'''
+	p[0] = p[1]
+	if len(p) > 2:
+		p[0] = p[3]
 def p_exp(p):
 	'''exp : term exp1'''
+	p[0] = p[1]
+	# print('exp----')
+	# print(p[1])
+	# print(p[2])
 
 def p_term1(p):
 	'''term1 : empty
@@ -233,44 +294,9 @@ def p_factor1(p):
 	operand = {}
 	if len(p) == 3:
 		operand = getOperand(p[2])
-	# 	p[0] = p[1] + str(p[2])
-	# 	# Verify PLUS & MINUS are used only on INT & FLOATS
-	# 	if ((isinstance(p[2], int)) or (isinstance(p[2], float))):
-	# 		if (p[1] == '-'):
-	# 			cuadruplos.pOperandos.append(p[2]*-1)
-	# 		else:
-	# 			cuadruplos.pOperandos.append(p[2])
-
-	# 		# Insert Type of varcte to pTipos
-	# 		if isinstance(p[2], int):
-	# 			cuadruplos.pTipos.append(INT)
-	# 		elif isinstance(p[2], float):
-	# 			cuadruplos.pTipos.append(FLOAT)
-	# 	else:
-	# 		print("Operator mismatch you have a %s before a type: %s at line: %s" %(p[1], type(p[2]), lexer.lineno))
-	# 		exit(1)
 	else:
 		operand = getOperand(p[1])
-	# 	p[0] = p[1]
-	# 	print("VARCTE operando: %s" %(str(p[1])))
-	# 	cuadruplos.pOperandos.append(p[1])
-	# 	print("operadores VARCTE encontrada: %s" %(str(cuadruplos.pOperandos)))
-	# 	# Insert Type of varcte to pTipos
-	# 	if isinstance(p[1], int):
-	# 		cuadruplos.pTipos.append(INT)
-	# 	elif isinstance(p[1], float):
-	# 		cuadruplos.pTipos.append(FLOAT)
-	# 	elif isinstance(p[1], bool):
-	# 		cuadruplos.pTipos.append(BOOL)
-	# 	else:
-	# 		if globalVars.has_key(p[1]):
-	# 			cuadruplos.pTipos.append(globalVars[p[1]][0])
-	# 		elif function_ptr != "GLOBAL" and functionsDir[function_ptr][1].has_key(p[1]):
-	# 			cuadruplos.pTipos.append(functionsDir[function_ptr][1][p[1]][0])
-	# 		else:
-	# 		cuadruplos.pTipos.append(STRING)
 	operandStack.append(operand)
-	typeStack.append(variableType)
 def p_factor(p):
 	'''factor : LEFTPAREN addFakeBottom expression RIGHTPAREN removeFakeBottom factorEnded
 			| factor1 factorEnded'''	
@@ -297,13 +323,14 @@ def p_call1(p):
 			| exp call2'''
 def p_call(p):
 	'''call : ID LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
+	print("call " + p[1])
 
-def p_arguments1(p):
-	'''arguments1 : empty
-			| COMMA type ID addArgument arguments1'''
-def p_arguments(p):
-	'''arguments : empty
-			| type ID addArgument arguments1'''
+def p_parameters1(p):
+	'''parameters1 : empty
+			| COMMA type ID addParameter parameters1'''
+def p_parameters(p):
+	'''parameters : empty
+			| type ID addParameter parameters1'''
 
 def p_constant1(p):
 	'''constant1 : empty
@@ -345,8 +372,28 @@ def p_assignement2(p):
 def p_assignement1(p):
 	'''assignement1 : ID
 			| varArr'''
+	p[0] = p[1]
+	if not p[1] in varLocal.keys() and not p[1] in varGlobal.keys():
+		print('Error: Cannot assign undeclared variable')
+		exit(1)
 def p_assignement(p):
 	'''assignement : assignement1 ASSIGN assignement2 SEMICOLON'''
+	print("--------assign ")
+	print(operandStack)
+	print(operationStack)
+	var1 = {}
+	if p[1] in varLocal.keys():
+		var1 = varLocal[p[1]]
+	else:
+		var1 = varGlobal[p[1]]
+	operand = operandStack.pop()
+	resultType = getResultType(var1['type'], '=', operand['type']%10)
+	if resultType > 0:
+		addQuadruple('=', operand, '', var1)
+	else:
+		print('Error: Assignment type mismatch')
+		exit(1)
+	print('--------')
 
 def p_varArr(p):
 	'''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
@@ -381,7 +428,8 @@ def p_addConstant(p):
 		constType = FLOAT
 	global constants
 	if not str(cte) in constants.keys():
-		constants[str(cte)] = {'value':cte, 'type':constType}
+		constants[str(cte)] = {'value':cte, 'type':constType, 'dir':constVarCount[constType]}
+		constVarCount[constType] += 1
 
 def p_saveFuncName(p):
 	'''saveFuncName : empty'''
@@ -398,14 +446,14 @@ def p_saveFuncTypeVoid(p):
 	global funcType
 	funcType = VOID
 
-def p_addArgument(p):
-	'''addArgument : empty'''
+def p_addParameter(p):
+	'''addParameter : empty'''
 	global lastVarName
-	global funcArguments
+	global funcParameters
 	lastVarName = p[-1]
 	variableName = lastVarName
 	addVariable(variableName, variableType)
-	funcArguments.append(varLocal[variableName])
+	funcParameters.append(varLocal[variableName])
 
 def p_addType(p):
 	'''addType : empty'''
@@ -433,17 +481,14 @@ def p_termEnded(p):
 			operand2 = operandStack.pop()
 			operation = operationStack.pop()
 			operand1 = operandStack.pop()
-			print(operand1)
-			print(operation)
-			print(operand2)
 			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
 			if resultType > 0:
 				addQuadruple(operation, operand1, operand2, 0)
-				typeStack.append(resultType)
-				operandStack.append({'value':0, 'type':resultType})
+				operandStack.append({'dir':0, 'type':resultType})
 			else:
-				print('Error: Type mismatch')
+				print('Error: Term type mismatch')
 				exit(1)
+	p[0] = "hio"
 
 def p_factorEnded(p):
 	'''factorEnded : empty'''
@@ -451,40 +496,16 @@ def p_factorEnded(p):
 	global operandStack
 	if len(operationStack) > 0:
 		if operationStack[-1] == '*' or operationStack[-1] == '/' or operationStack[-1] == '&&':
-			operand1 = operandStack.pop()
-			operation = operationStack.pop()
 			operand2 = operandStack.pop()
-			print(operand1)
-			print(operation)
-			print(operand2)
+			operation = operationStack.pop()
+			operand1 = operandStack.pop()
 			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
 			if resultType > 0:
 				addQuadruple(operation, operand1, operand2, 0)
-				typeStack.append(resultType)
-				operandStack.append({'value':0, 'type':resultType})
+				operandStack.append({'dir':0, 'type':resultType})
 			else:
-				print('Error: Type mismatch')
+				print('Error: Factor type mismatch')
 				exit(1)
-
-def p_expressionEnded(p):
-	'''expressionEnded : empty'''
-	global operationStack
-	global operandStack
-	if len(operationStack) > 0:
-		if operationStack[-1] == '<' or operationStack[-1] == '>' or operationStack[-1] == '<=' or operationStack[-1] == '>=' or operationStack[-1] == '==' or operationStack[-1] == '!=':
-			operand1 = operandStack.pop()
-			operation = operationStack.pop()
-			operand2 = operandStack.pop()
-			print(operand1)
-			print(operation)
-			print(operand2)
-			resultType = getResultType(operand1['type']%10, operation, operand2['type']%10)
-			if resultType > 0:
-				addQuadruple(operation, operand1, operand2, 0)
-				typeStack.append(resultType)
-				operandStack.append({'value':0, 'type':resultType})
-			else:
-				print('Type mismatch')
 
 def p_addFakeBottom(p):
 	'''addFakeBottom : empty'''
@@ -527,17 +548,22 @@ yacc.yacc()
 def addVariable(variable, varType):
 	global varGlobal
 	global varLocal
+	if variable in funcGlobal.keys():
+		print("Variable error: Variable cannot have the same name as a function")
+		exit(1)
 	if scope == 'global':
 		if not variable in varGlobal.keys():
-			varGlobal[variable] = {'name':variable, 'type':varType}
+			varGlobal[variable] = {'name':variable, 'type':varType, 'dir':globalVarCount[varType]}
+			globalVarCount[varType] += 1
 		else:
-			print("Variable error : Variable is already declared globally")
+			print("Variable error: Variable is already declared globally")
 			exit(1)
 	else:
 		if not variable in varLocal.keys():
-			varLocal[variable] = {'name':variable, 'type':varType}
+			varLocal[variable] = {'name':variable, 'type':varType, 'dir':localVarCount[varType]}
+			localVarCount[varType] += 1
 		else:
-			print("Variable error : Variable is already declared locally")
+			print("Variable error: Variable is already declared locally")
 			exit(1)
 
 def convertVariableToArray():
@@ -550,10 +576,13 @@ def convertVariableToArray():
 
 def addFunction(name, funType, parameters):
 	global funcGlobal
+	if name in varGlobal.keys():
+		print("Function error: Function cannot have the same name as a variable")
+		exit(1)
 	if not name in funcGlobal.keys():
-		funcGlobal[name] = {'name':name, 'type':funType, 'parameters':parameters}
+		funcGlobal[name] = {'name':name, 'type':funType, 'parameters':parameters, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'charCount':localVarCount[CHAR], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'charTempCount':tempVarCount[CHAR]}
 	else:
-		print("Function error : Function is already declared")
+		print("Function error: Function is already declared")
 		exit(1)
 
 def addQuadruple(operation, var1, var2, result):
@@ -573,6 +602,22 @@ def getOperand(key):
 		return varLocal[key]
 	elif key in varGlobal.keys():
 		return varGlobal[key]
+
+def resetLocalCounters():
+	global varLocal
+	global funcParameters
+	global localVarCount
+	global tempVarCount
+	varLocal = {}
+	funcParameters = []
+	localVarCount[BOOL] = 0
+	localVarCount[INT] = 0
+	localVarCount[FLOAT] = 0
+	localVarCount[CHAR] = 0
+	tempVarCount[BOOL] = 0
+	tempVarCount[INT] = 0
+	tempVarCount[FLOAT] = 0
+	tempVarCount[CHAR] = 0
 
 # Main
 if __name__ == '__main__':

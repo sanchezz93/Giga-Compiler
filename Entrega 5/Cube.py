@@ -56,7 +56,7 @@ varDictionary['float*float'] = FLOAT
 varDictionary['float*int'] = FLOAT
 
 #Division
-varDictionary['int/int'] = FLOAT
+varDictionary['int/int'] = INT
 varDictionary['int/float'] = FLOAT
 varDictionary['float/int'] = FLOAT
 varDictionary['float/float'] = FLOAT
