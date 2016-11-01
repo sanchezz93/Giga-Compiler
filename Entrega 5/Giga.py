@@ -36,7 +36,6 @@ quadruples = []
 operandStack = []
 operationStack = []
 jumpStack = []
-ifJumpCount = 0
 
 constants = {'true':{'value':True, 'type':BOOL, 'dir':'1'}, 'false':{'value':False, 'type':BOOL, 'dir':'0'}, '-1':{'type':2, 'dir':0, 'value':-1}}
 varGlobal = {}
@@ -202,6 +201,7 @@ def p_maing(p):
 	print('-------- stacks')
 	print(operandStack)
 	print(operationStack)
+	print(jumpStack)
 	print('--------')
 	print('global vars: %s' % varGlobal)
 	print('functions: %s' % funcGlobal)
@@ -370,7 +370,7 @@ def p_condition2(p):
 			| ELSE block ifEnd'''
 def p_condition1(p):
 	'''condition1 : empty
-			| ELSEIF LEFTPAREN expression RIGHTPAREN ifStart block ifContinue condition1'''
+			| ELSEIF LEFTPAREN expression RIGHTPAREN ifStart2 block ifContinue condition1'''
 def p_condition(p):
 	'''condition : IF LEFTPAREN expression RIGHTPAREN ifStart block ifContinue condition1 condition2'''
 
@@ -541,6 +541,11 @@ def p_changeToGlobalScope(p):
 
 def p_ifStart(p):
 	'''ifStart : empty'''
+	jumpStack.append('IF')
+	p_ifStart2(p)
+
+def p_ifStart2(p):
+	'''ifStart2 : empty'''
 	condition = operandStack.pop()
 	if condition['type'] == BOOL:
 		addQuadruple('GOTOF', condition, '', '')
@@ -552,18 +557,15 @@ def p_ifStart(p):
 def p_ifContinue(p):
 	'''ifContinue : empty'''
 	addQuadruple('GOTO', '', '', '')
-	global ifJumpCount
-	ifJumpCount += 1
 	complete = jumpStack.pop()
 	jumpStack.append(len(quadruples)-1)
 	completeQuadruple(complete, len(quadruples))
 
 def p_ifEnd(p):
 	'''ifEnd : empty'''
-	global ifJumpCount
-	while ifJumpCount > 0:
-		ifJumpCount -= 1
+	while jumpStack[-1] != 'IF':
 		completeQuadruple(jumpStack.pop(), len(quadruples))
+	jumpStack.pop()
 
 def p_whileStart(p):
 	'''whileStart : empty'''
@@ -649,12 +651,7 @@ def addQuadruple(operation, var1, var2, result):
 	quadruples.append({'op':operation, 'var1':var1, 'var2':var2, 'result':result})
 
 def completeQuadruple(index, newValue):
-	print('--------ONE')
-	print(quadruples)
 	quadruples[index]['result'] = newValue
-	print('--------TWO')
-	print(quadruples)
-	print('--------')
 
 def num(s):
 	try:
