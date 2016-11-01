@@ -142,6 +142,12 @@ function logger(e) {
 }
 
 
+function toTxt(){
+  var text = document.getElementById('importExport').value;
+  console.log(text);
+}
+
+
 </script>
 
 <style>
@@ -195,6 +201,10 @@ h1 {
     <br>
     <input type="button" value="To Giga" onclick="toCode('JavaScript')">
     &nbsp;
+     <input type="button" value="To Txt" onclick="toTxt()">
+    &nbsp;
+    <br>
+   
     <br>
     <br>
     <textarea id="importExport" style="width: 332px; height: 347px"
