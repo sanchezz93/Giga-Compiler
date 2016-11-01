@@ -35,6 +35,8 @@ constVarCount[CHAR] = 47500
 quadruples = []
 operandStack = []
 operationStack = []
+jumpStack = []
+ifJumpCount = 0
 
 constants = {'true':{'value':True, 'type':BOOL, 'dir':'1'}, 'false':{'value':False, 'type':BOOL, 'dir':'0'}, '-1':{'type':2, 'dir':0, 'value':-1}}
 varGlobal = {}
@@ -172,20 +174,9 @@ def p_vars1(p):
 		addQuadruple('*', constants['-1'], constants[p[5]], var)
 	else:
 		addQuadruple('=', constants[p[5]], '', var)
-
-
-	# var1 = {}
-	# if p[1] in varLocal.keys():
-	# 	var1 = varLocal[p[1]]
-	# else:
-	# 	var1 = varGlobal[p[1]]
-	# operand = operandStack.pop()
-	# resultType = getResultType(var1['type'], '=', operand['type']%10)
-	# if resultType > 0:
-	# 	addQuadruple('=', operand, '', var1)
-	# else:
-	# 	print('Error: Assignment type mismatch')
-	# 	exit(1)
+	if getResultType(var['type'], '=', constants[p[5]]['type']) < 0:
+		print('Error: Assignment type mismatch')
+		exit(1)
 
 def p_vars(p):
 	'''vars : type vars1 vars2 SEMICOLON'''
@@ -244,9 +235,9 @@ def p_expression1(p):
 	global operandStack
 	if len(operationStack) > 0:
 		if operationStack[-1] == '<' or operationStack[-1] == '>' or operationStack[-1] == '<=' or operationStack[-1] == '>=' or operationStack[-1] == '==' or operationStack[-1] == '!=':
-			operand1 = operandStack.pop()
-			operation = operationStack.pop()
 			operand2 = operandStack.pop()
+			operation = operationStack.pop()
+			operand1 = operandStack.pop()
 			print('???')
 			print(operand1)
 			print(operation)
@@ -320,7 +311,7 @@ def p_statute(p):
 
 
 def p_cycle(p):
-	'''cycle : WHILE LEFTPAREN expression RIGHTPAREN block'''
+	'''cycle : WHILE whileStart LEFTPAREN expression RIGHTPAREN whileCheck block whileEnd'''
 
 def p_call2(p):
 	'''call2 : empty
@@ -363,15 +354,25 @@ def p_cteN(p):
 	p[0] = p[1]
 def p_cteS(p):
 	'''cteS : STRING'''
+	cte = p[1]
+	if '\"' in cte:
+		cte = cte.replace('\"','')
+		print('-------dwedw')
+		print(cte)
+	global constants
+	if not cte in constants.keys():
+		constants[cte] = {'value':cte, 'type':CHAR, 'dir':constVarCount[CHAR]}
+		constVarCount[CHAR] += 1
+	p[0] = cte
 
 def p_condition2(p):
-	'''condition2 : empty
-			| ELSE block'''
+	'''condition2 : empty ifEnd
+			| ELSE block ifEnd'''
 def p_condition1(p):
 	'''condition1 : empty
-			| ELSEIF LEFTPAREN expression RIGHTPAREN block condition1'''
+			| ELSEIF LEFTPAREN expression RIGHTPAREN ifStart block ifContinue condition1'''
 def p_condition(p):
-	'''condition : IF LEFTPAREN expression RIGHTPAREN block condition1 condition2'''
+	'''condition : IF LEFTPAREN expression RIGHTPAREN ifStart block ifContinue condition1 condition2'''
 
 def p_assignement2(p):
 	'''assignement2 : call
@@ -538,6 +539,53 @@ def p_changeToGlobalScope(p):
 	global scope
 	scope = 'global'
 
+def p_ifStart(p):
+	'''ifStart : empty'''
+	condition = operandStack.pop()
+	if condition['type'] == BOOL:
+		addQuadruple('GOTOF', condition, '', '')
+		jumpStack.append(len(quadruples)-1)
+	else:
+		print('Error: Condition in \'if\' statement must evaluate to a bool.')
+		exit(1)
+
+def p_ifContinue(p):
+	'''ifContinue : empty'''
+	addQuadruple('GOTO', '', '', '')
+	global ifJumpCount
+	ifJumpCount += 1
+	complete = jumpStack.pop()
+	jumpStack.append(len(quadruples)-1)
+	completeQuadruple(complete, len(quadruples))
+
+def p_ifEnd(p):
+	'''ifEnd : empty'''
+	global ifJumpCount
+	while ifJumpCount > 0:
+		ifJumpCount -= 1
+		completeQuadruple(jumpStack.pop(), len(quadruples))
+
+def p_whileStart(p):
+	'''whileStart : empty'''
+	jumpStack.append(len(quadruples))
+
+def p_whileCheck(p):
+	'''whileCheck : empty'''
+	condition = operandStack.pop()
+	if condition['type'] == BOOL:
+		addQuadruple('GOTOF', condition, '', '')
+		jumpStack.append(len(quadruples)-1)
+	else:
+		print('Error: Condition in \'if\' statement must evaluate to a bool.')
+		exit(1)
+
+def p_whileEnd(p):
+	'''whileEnd : empty'''
+	complete = jumpStack.pop()
+	addQuadruple('GOTO', '', '', jumpStack.pop())
+	completeQuadruple(complete, len(quadruples))
+
+
 
 
 
@@ -599,6 +647,14 @@ def addFunction(name, funType, parameters):
 def addQuadruple(operation, var1, var2, result):
 	global quadruples
 	quadruples.append({'op':operation, 'var1':var1, 'var2':var2, 'result':result})
+
+def completeQuadruple(index, newValue):
+	print('--------ONE')
+	print(quadruples)
+	quadruples[index]['result'] = newValue
+	print('--------TWO')
+	print(quadruples)
+	print('--------')
 
 def num(s):
 	try:
