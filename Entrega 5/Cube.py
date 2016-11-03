@@ -9,8 +9,8 @@ INT = 2
 INTARRAY = 22
 FLOAT = 3
 FLOATARRAY = 33
-CHAR = 4
-CHARARRAY = 44
+STRING = 4
+STRINGARRAY = 44
 
 ASSIGN = 100
 PLUS = 101
@@ -35,7 +35,7 @@ varDictionary['bool=bool'] = BOOL
 varDictionary['int=int'] = INT
 varDictionary['float=int'] = FLOAT
 varDictionary['float=float'] = FLOAT
-varDictionary['char=char'] = CHAR
+varDictionary['string=string'] = STRING
 
 #Sums
 varDictionary['int+int'] = INT
@@ -94,7 +94,7 @@ varDictionary['int==int'] = BOOL
 varDictionary['int==float'] = BOOL
 varDictionary['float==int'] = BOOL
 varDictionary['float==float'] = BOOL
-varDictionary['char==char'] = BOOL
+varDictionary['string==string'] = BOOL
 
 
 #Different
@@ -103,7 +103,7 @@ varDictionary['int!=int'] = BOOL
 varDictionary['int!=float'] = BOOL
 varDictionary['float!=int'] = BOOL
 varDictionary['float!=float'] = BOOL
-varDictionary['char!=char']  = BOOL
+varDictionary['string!=string']  = BOOL
 
 
 #And
@@ -128,9 +128,9 @@ def getTypeString(type):
 	elif type == 33:
 		return 'floatArray'
 	elif type == 4:
-		return 'char'
+		return 'string'
 	elif type == 44:
-		return 'charArray'
+		return 'stringArray'
 
 def getTypeValue(type):
 	if 'bool' == type:
@@ -145,10 +145,10 @@ def getTypeValue(type):
 		return FLOAT
 	elif 'floatArray' == type:
 		return FLOATARRAY
-	elif 'char' == type:
-		return CHAR
-	elif 'charArray' == type:
-		return CHARARRAY
+	elif 'string' == type:
+		return STRING
+	elif 'stringArray' == type:
+		return STRINGARRAY
 
 def getResultType(operand1, operator, operand2):
 	s1 = getTypeString(operand1)

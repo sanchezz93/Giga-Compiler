@@ -12,25 +12,25 @@ globalVarCount = {}			#10000
 globalVarCount[BOOL] = 10000
 globalVarCount[INT] = 12500
 globalVarCount[FLOAT] = 15000
-globalVarCount[CHAR] = 17500
+globalVarCount[STRING] = 17500
 
 localVarCount = {}			#20000
 localVarCount[BOOL] = 20000
 localVarCount[INT] = 22500
 localVarCount[FLOAT] = 25000
-localVarCount[CHAR] = 27500
+localVarCount[STRING] = 27500
 
 tempVarCount = {}			#30000
 tempVarCount[BOOL] = 30000
 tempVarCount[INT] = 32500
 tempVarCount[FLOAT] = 35000
-tempVarCount[CHAR] = 37500
+tempVarCount[STRING] = 37500
 
 constVarCount = {}			#40000
 constVarCount[BOOL] = 40002
 constVarCount[INT] = 42501
 constVarCount[FLOAT] = 45000
-constVarCount[CHAR] = 47500
+constVarCount[STRING] = 47500
 
 quadruples = []
 operandStack = []
@@ -71,7 +71,7 @@ reserved = {
 	'bool' : 'TBOOL',
 	'int' : 'TINT',
 	'float' : 'TFLOAT',
-	'char' : 'TCHAR',
+	'string' : 'TSTRING',
 	'return' : 'RETURN'
 }
 
@@ -400,8 +400,8 @@ def p_cteS(p):
 		cte = cte.replace('\"','')
 	global constants
 	if not cte in constants.keys():
-		constants[cte] = {'value':cte, 'type':CHAR, 'dir':constVarCount[CHAR]}
-		constVarCount[CHAR] += 1
+		constants[cte] = {'value':cte, 'type':STRING, 'dir':constVarCount[STRING]}
+		constVarCount[STRING] += 1
 	p[0] = cte
 
 def p_condition2(p):
@@ -445,7 +445,7 @@ def p_type(p):
 	'''type : TBOOL addType
 			| TINT addType
 			| TFLOAT addType
-			| TCHAR addType'''
+			| TSTRING addType'''
 
 
 
@@ -705,7 +705,7 @@ def addFunction(name, funType, startQuadruple):
 		print("Function error: Function cannot have the same name as a variable")
 		exit(1)
 	if not name in funcGlobal.keys():
-		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'charCount':localVarCount[CHAR], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'charTempCount':tempVarCount[CHAR]}
+		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'stringCount':localVarCount[STRING], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'stringTempCount':tempVarCount[STRING]}
 	else:
 		print("Function error: Function is already declared")
 		exit(1)
@@ -741,11 +741,11 @@ def resetLocalCounters():
 	localVarCount[BOOL] = 20000
 	localVarCount[INT] = 22500
 	localVarCount[FLOAT] = 25000
-	localVarCount[CHAR] = 27500
+	localVarCount[STRING] = 27500
 	tempVarCount[BOOL] = 30000
 	tempVarCount[INT] = 32500
 	tempVarCount[FLOAT] = 35000
-	tempVarCount[CHAR] = 37500
+	tempVarCount[STRING] = 37500
 
 
 
