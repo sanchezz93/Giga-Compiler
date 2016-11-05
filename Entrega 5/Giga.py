@@ -12,7 +12,7 @@ globalVarCount = {}			#10000
 globalVarCount[BOOL] = INITIALGLOBALBOOL
 globalVarCount[INT] = INITIALGLOBALINT
 globalVarCount[FLOAT] = INITIALGLOBALFLOAT
-globalVarCount[CHAR] = INITIALGLOBALSTRING
+globalVarCount[STRING] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
 localVarCount[BOOL] = 20000
@@ -221,10 +221,23 @@ def p_block(p):
 
 def p_write(p):
 	'''write : PRINT LEFTPAREN cte RIGHTPAREN SEMICOLON'''
+	var = None
+	if p[3] in varLocal.keys():
+		var = varLocal[p[3]]
+	elif p[3] in varGlobal.keys():
+		var = varGlobal[p[3]]
+	else:
+		var = constants[p[3]]
+	addQuadruple('PRINT', '', '', var)
 
 def p_readg(p):
 	'''readg : READ LEFTPAREN ID RIGHTPAREN SEMICOLON'''
-
+	var = None
+	if p[3] in varLocal.keys():
+		var = varLocal[p[3]]
+	else:
+		var = varGlobal[p[3]]
+	addQuadruple('READ', '', '', var)
 
 
 def p_expression1(p):
