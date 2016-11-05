@@ -42,7 +42,6 @@ Blockly.JavaScript['function_params'] = function(block) {
 };
 
 
-
 Blockly.JavaScript['function_without_params'] = function(block) {
   var dropdown_type = block.getFieldValue('TYPE');
   var text_id = block.getFieldValue('ID');
@@ -73,6 +72,8 @@ Blockly.JavaScript['param_comma'] = function(block) {
   // TODO: Change ORDER_NONE to the correct strength.
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
+
+
 
 
 
@@ -126,7 +127,7 @@ Blockly.JavaScript['return'] = function(block) {
 ---------------------------------------------------------
 */
 
-//type variable = n
+
 Blockly.JavaScript['variable_definition'] = function(block) {
   var dropdown_type = block.getFieldValue('TYPE');
   var text_id = block.getFieldValue('ID');
@@ -136,8 +137,10 @@ Blockly.JavaScript['variable_definition'] = function(block) {
   return code;
 };
 
+
 //type variable = n, 
 //REVISAR
+
 Blockly.JavaScript['variable_with_comma'] = function(block) {
   var dropdown_type = block.getFieldValue('TYPE');
   var text_id = block.getFieldValue('ID');
@@ -147,6 +150,8 @@ Blockly.JavaScript['variable_with_comma'] = function(block) {
   var code = dropdown_type + ' ' + text_id + '=' + text_value +',';
   return code;
 };
+
+
 
 
 Blockly.JavaScript['variable_comma'] = function(block) {

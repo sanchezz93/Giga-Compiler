@@ -9,10 +9,10 @@ if sys.version_info[0] >= 3:
 #Define global variables
 
 globalVarCount = {}			#10000
-globalVarCount[BOOL] = 10000
-globalVarCount[INT] = 12500
-globalVarCount[FLOAT] = 15000
-globalVarCount[STRING] = 17500
+globalVarCount[BOOL] = INITIALGLOBALBOOL
+globalVarCount[INT] = INITIALGLOBALINT
+globalVarCount[FLOAT] = INITIALGLOBALFLOAT
+globalVarCount[CHAR] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
 localVarCount[BOOL] = 20000

@@ -52,7 +52,7 @@ Blockly.Blocks['function_params'] = {
     this.appendValueInput("PARAMS")
         .setCheck(null)
         .appendField("func")
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"], ["void", "void"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["string", "string"], ["void", "void"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("id"), "ID");
     this.appendStatementInput("NAME")
         .setCheck(null);
@@ -69,7 +69,7 @@ Blockly.Blocks['function_without_params'] = {
   init: function() {
     this.appendDummyInput()
         .appendField("func")
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"], ["void", "void"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["string", "string"], ["void", "void"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("id"), "ID");
     this.appendStatementInput("NAME")
         .setCheck(null);
@@ -85,7 +85,7 @@ Blockly.Blocks['function_without_params'] = {
 Blockly.Blocks['parameter_no_comma'] = {
   init: function() {
     this.appendDummyInput()
-         .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int",      "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+         .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int","int"], ["float", "float"], ["string", "string"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("'name'"), "name_param");
     this.setOutput(true, null);
     this.setColour(210);
@@ -99,7 +99,7 @@ Blockly.Blocks['param_comma'] = {
   init: function() {
     this.appendValueInput("params_with_comma")
         .setCheck(null)
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["char", "char"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["float", "float"], ["string", "string"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("' name' "), "name_param");
     this.setOutput(true, null);
     this.setColour(300);
@@ -174,7 +174,7 @@ Blockly.Blocks['return'] = {
 Blockly.Blocks['variable_definition'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["char", "char"], ["float", "float"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["string", "string"], ["float", "float"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("id"), "ID")
         .appendField("=")
         .appendField(new Blockly.FieldTextInput("value"), "VALUE");
@@ -192,7 +192,7 @@ Blockly.Blocks['variable_with_comma'] = {
   init: function() {
     this.appendValueInput("NAME")
         .setCheck(null)
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["char", "char"], ["float", "float"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["string", "string"], ["float", "float"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("id"), "ID")
         .appendField("=")
         .appendField(new Blockly.FieldTextInput("value"), "VALUE");
@@ -321,7 +321,7 @@ Blockly.Blocks['array_definition'] = {
   init: function() {
     this.appendValueInput("NAME")
         .setCheck(null)
-        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["char", "char"], ["float", "float"]]), "TYPE")
+        .appendField(new Blockly.FieldDropdown([["bool", "bool"], ["int", "int"], ["string", "string"], ["float", "float"]]), "TYPE")
         .appendField(new Blockly.FieldTextInput("id"), "ID")
         .appendField("[")
         .appendField(new Blockly.FieldNumber(0, 1), "SIZE")
