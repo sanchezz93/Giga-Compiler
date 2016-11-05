@@ -39,7 +39,7 @@ jumpStack = []
 sendParams = []
 argumentCount = 0
 
-constants = {'true':{'value':True, 'type':BOOL, 'dir':'1'}, 'false':{'value':False, 'type':BOOL, 'dir':'0'}, '-1':{'type':2, 'dir':0, 'value':-1}}
+constants = {'true':{'value':True, 'type':BOOL, 'dir':'1'}, 'false':{'value':False, 'type':BOOL, 'dir':'0'}, '-1':{'type':INT, 'dir':0, 'value':-1}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
@@ -167,9 +167,6 @@ def p_vars2(p):
 			| COMMA vars1'''
 def p_vars1(p):
 	'''vars1 : ID addVariable vars3 ASSIGN vars4'''
-	print('vars1')
-	print(p[1])
-	print(p[5])
 	var = {}
 	if p[1] in varLocal.keys():
 		var = varLocal[p[1]]
@@ -307,7 +304,10 @@ def p_statute(p):
 			| readg
 			| write
 			| cycle'''
-
+	if p[1] is not None:
+		if p[1] != VOID:
+			print('Warning: Unused function return value.')
+			operandStack.pop()
 
 
 def p_cycle(p):
@@ -322,12 +322,11 @@ def p_call2(p):
 		exit(1)
 	if len(p) == 5:
 		argumentCount -= 1
-		print('call2')
 		argument = operandStack.pop()
 		parameter = sendParams.pop()
 		resultType = getResultType(parameter['type'], '=', argument['type'])
 		if resultType > 0:
-			addQuadruple('=', argument, '', parameter)
+			addQuadruple('PARAM', argument, '', parameter)
 		else:
 			print('Error: Argument type doesn\'t match the type of the parameter declared')
 			exit(1)
@@ -339,20 +338,21 @@ def p_call1(p):
 		print('Error: Number of arguments doesn\'t match number of parameters declared')
 		exit(1)
 	if len(p) == 4:
-		print('call1')
 		argument = operandStack.pop()
 		parameter = sendParams.pop()
 		resultType = getResultType(parameter['type'], '=', argument['type'])
 		if resultType > 0:
-			addQuadruple('=', argument, '', parameter)
+			addQuadruple('PARAM', argument, '', parameter)
 		else:
 			print('Error: Argument type doesn\'t match the type of the parameter declared')
 			exit(1)
 def p_call(p):
 	'''call : ID prepareParams LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
-	print("call " + p[1])
 	argumentCount = 0
 	addQuadruple('GOFUNC', '', '', p[1])
+	if funcGlobal[p[1]]['type'] != VOID:
+		operandStack.append(funcGlobal[p[1]])
+	p[0] = funcGlobal[p[1]]['type']
 
 def p_prepareParams(p):
 	'''prepareParams : empty'''
@@ -416,6 +416,9 @@ def p_condition(p):
 def p_assignement2(p):
 	'''assignement2 : call
 			| expression SEMICOLON'''
+	if p[1] == VOID:
+		print('Error: Cannot assign a function of type void.')
+		exit(1)
 def p_assignement1(p):
 	'''assignement1 : ID
 			| varArr'''
@@ -561,7 +564,6 @@ def p_addFakeBottom(p):
 def p_removeFakeBottom(p):
 	'''removeFakeBottom : empty'''
 	global operationStack
-	print(operationStack)
 	operationStack.pop()
 
 def p_changeToLocalScope(p):
@@ -640,7 +642,6 @@ def p_funcStart(p):
 def p_funcReturn(p):
 	'''funcReturn : empty'''
 	value = operandStack.pop()
-	print(value)
 	if value['type'] == funcGlobal[lastFuncName]['type']:
 		addQuadruple('RETURN', '', '', value)
 	else:
@@ -706,6 +707,9 @@ def addFunction(name, funType, startQuadruple):
 		exit(1)
 	if not name in funcGlobal.keys():
 		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'stringCount':localVarCount[STRING], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'stringTempCount':tempVarCount[STRING]}
+		if funType != 0:
+			funcGlobal[name]['dir'] = globalVarCount[funType]
+			globalVarCount[funType] += 1
 	else:
 		print("Function error: Function is already declared")
 		exit(1)
