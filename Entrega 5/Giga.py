@@ -15,22 +15,22 @@ globalVarCount[FLOAT] = INITIALGLOBALFLOAT
 globalVarCount[STRING] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
-localVarCount[BOOL] = 20000
-localVarCount[INT] = 22500
-localVarCount[FLOAT] = 25000
-localVarCount[STRING] = 27500
+localVarCount[BOOL] = INTIALLOCALBOOL
+localVarCount[INT] =  INTIALLOCALINT
+localVarCount[FLOAT] =  INTIALLOCALFLOAT
+localVarCount[STRING] =  INTIALLOCALSTRING
 
 tempVarCount = {}			#30000
-tempVarCount[BOOL] = 30000
-tempVarCount[INT] = 32500
-tempVarCount[FLOAT] = 35000
-tempVarCount[STRING] = 37500
+tempVarCount[BOOL] = INITIALTEMPBOOL
+tempVarCount[INT] =  INITIALTEMPINT
+tempVarCount[FLOAT] = INTIALTEMPFLOAT
+tempVarCount[STRING] = INITIALTEMPSTRING
 
 constVarCount = {}			#40000
-constVarCount[BOOL] = 40002
-constVarCount[INT] = 42501
-constVarCount[FLOAT] = 45000
-constVarCount[STRING] = 47500
+constVarCount[BOOL] = INITIALCONSTBOOL
+constVarCount[INT] = INITIALCONSTINT
+constVarCount[FLOAT] = INITIALCONSTFLOAT
+constVarCount[STRING] = INTIALCONSTSTRING
 
 quadruples = []
 operandStack = []
