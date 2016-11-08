@@ -118,7 +118,7 @@ def  t_ID(t):
 	return t
 
 def t_STRING(t):
-	r'\".*\"'
+	r'\"[^\"]*\"'
 	return t
 
 def t_newline(t):
@@ -178,17 +178,14 @@ def p_vars1(p):
 	else:#array
 		print(cteArrayStack)
 		if var['size'] == len(cteArrayStack):
-			print('cfygvuhbijnibueceucberudcfiefc')
 			dir = var['dir']
 			for i in range(0, var['size']):
 				value = cteArrayStack.pop()
 				if getResultType(var['type']%10, '=', constants[value]['type']) < 0:
 					print('Error: Assignment type mismatch')
 					exit(1)
-
 				addQuadruple('=', constants[value]['dir'], '', dir)
 				dir += 1
-			print(varLocal)
 		else:
 			print('Error: Assignment of array does not match the size of the array declared')
 			exit(1)
