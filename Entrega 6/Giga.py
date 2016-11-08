@@ -37,6 +37,7 @@ quadruples = []
 operandStack = []
 operationStack = []
 jumpStack = []
+cteArrayStack = []
 sendParams = []
 argumentCount = 0
 
@@ -151,38 +152,46 @@ def p_moduleg(p):
 	'''moduleg : MODULE ID LEFTBKT globalVars jumpToMain functions maing RIGHTBKT'''
 
 
-def p_vars4(p):
-	'''vars4 : constant
-			| PLUS constant
-			| MINUS constant'''
-	p[0] = p[1]
-	if len(p) > 2:
-		p[0] = p[2]
-		if p[1] == '-':
-			p[0] = '-'+p[2]
 def p_vars3(p):
-	'''vars3 : empty
-			| LEFTSQBKT cteN RIGHTSQBKT'''
-	if len(p) > 2:
-		convertVariableToArray(p[2])
+	'''vars3 : LEFTSQBKT cteN RIGHTSQBKT'''
+	convertVariableToArray(num(p[2]))
 def p_vars2(p):
 	'''vars2 : empty
 			| COMMA vars1'''
 def p_vars1(p):
-	'''vars1 : ID addVariable vars3 ASSIGN vars4'''
+	'''vars1 : ID addVariable ASSIGN signedCte
+			| ID addVariable vars3 ASSIGN constantArray'''
 	var = {}
 	if p[1] in varLocal.keys():
 		var = varLocal[p[1]]
 	else:
 		var = varGlobal[p[1]]
-	if '-' in p[5]:
-		p[5] = p[5].replace('-','')
-		addQuadruple('*', constants['-1']['dir'], constants[p[5]]['dir'], var['dir'])
-	else:
-		addQuadruple('=', constants[p[5]]['dir'], '', var['dir'])
-	if getResultType(var['type'], '=', constants[p[5]]['type']) < 0:
-		print('Error: Assignment type mismatch')
-		exit(1)
+	if var['type'] < 10:
+		if '-' in p[4]:
+			p[4] = p[4].replace('-','')
+			addQuadruple('*', constants['-1']['dir'], constants[p[4]]['dir'], var['dir'])
+		else:
+			addQuadruple('=', constants[p[4]]['dir'], '', var['dir'])
+		if getResultType(var['type'], '=', constants[p[4]]['type']) < 0:
+			print('Error: Assignment type mismatch')
+			exit(1)
+	else:#array
+		print(cteArrayStack)
+		if var['size'] == len(cteArrayStack):
+			print('cfygvuhbijnibueceucberudcfiefc')
+			dir = var['dir']
+			for i in range(0, var['size']):
+				value = cteArrayStack.pop()
+				if getResultType(var['type']%10, '=', constants[value]['type']) < 0:
+					print('Error: Assignment type mismatch')
+					exit(1)
+
+				addQuadruple('=', constants[value]['dir'], '', dir)
+				dir += 1
+			print(varLocal)
+		else:
+			print('Error: Assignment of array does not match the size of the array declared')
+			exit(1)
 
 def p_vars(p):
 	'''vars : type vars1 vars2 SEMICOLON'''
@@ -206,7 +215,7 @@ def p_maing(p):
 	print('-------- quadruples')
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
-		print('%s	{var1:%s }	{op:%s }	{var2:%s }	{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
+		print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
 	print('--------')
 	print('-------- stacks')
 	print(operandStack)
@@ -264,7 +273,7 @@ def p_expression1(p):
 			resultType = getResultType(operand1['type'], operation, operand2['type'])
 			if resultType > 0:
 				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
-				addQuadruple(operation, operand1['dir'], operand2['dir'], tempVar)
+				addQuadruple(operation, operand1['dir'], operand2['dir'], tempVar['dir'])
 				operandStack.append(tempVar)
 				tempVarCount[resultType] += 1
 			else:
@@ -294,15 +303,15 @@ def p_term(p):
 	'''term : factor term1 termEnded'''
 
 def p_factor1(p):
-	'''factor1 : constant
-			| PLUS constant
-			| MINUS constant'''
+	'''factor1 : cte
+			| PLUS cte
+			| MINUS cte'''
 	global operandStack
 	operand = {}
 	if len(p) == 3:
 		operand = getOperand(p[2])
 		if p[1] == '-':
-			resultType = getResultType(operand['type']%10, '*', INT)
+			resultType = getResultType(operand['type'], '*', INT)
 			tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
 			addQuadruple('*', constants['-1']['dir'], operand, tempVar['dir'])
 			operand = tempVar
@@ -389,15 +398,24 @@ def p_parameters(p):
 	'''parameters : empty
 			| type ID addParameter parameters1'''
 
-def p_constant1(p):
-	'''constant1 : empty
-			| COMMA cte constant1'''
-def p_constant(p):
-	'''constant : cte
-			| LEFTSQBKT cte constant1 RIGHTSQBKT'''
-	if len(p) == 2:
-		p[0] = p[1]
+def p_constantArray1(p):
+	'''constantArray1 : empty
+			| COMMA signedCte constantArray1'''
+	if len(p) > 2:
+		cteArrayStack.append(p[2])
+def p_constantArray(p):
+	'''constantArray : LEFTSQBKT signedCte constantArray1 RIGHTSQBKT'''
+	cteArrayStack.append(p[2])
 
+def p_signedCte(p):
+	'''signedCte : cte
+			| PLUS cte
+			| MINUS cte'''
+	p[0] = p[1]
+	if len(p) > 2:
+		p[0] = p[2]
+		if p[1] == '-':
+			p[0] = '-'+p[2]
 def p_cte(p):
 	'''cte : ID
 			| varArr
@@ -452,7 +470,7 @@ def p_assignement(p):
 	else:
 		var = varGlobal[p[1]]
 	operand = operandStack.pop()
-	resultType = getResultType(var['type'], '=', operand['type']%10)
+	resultType = getResultType(var['type'], '=', operand['type'])
 	if resultType > 0:
 		addQuadruple('=', operand['dir'], '', var['dir'])
 	else:
@@ -548,7 +566,7 @@ def p_termEnded(p):
 			operand2 = operandStack.pop()
 			operation = operationStack.pop()
 			operand1 = operandStack.pop()
-			resultType = getResultType(operand1['type']%10, operation, operand2['type'])
+			resultType = getResultType(operand1['type'], operation, operand2['type'])
 			if resultType > 0:
 				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
 				addQuadruple(operation, operand1['dir'], operand2['dir'], tempVar['dir'])
@@ -568,7 +586,7 @@ def p_factorEnded(p):
 			operand2 = operandStack.pop()
 			operation = operationStack.pop()
 			operand1 = operandStack.pop()
-			resultType = getResultType(operand1['type']%10, operation, operand2['type'])
+			resultType = getResultType(operand1['type'], operation, operand2['type'])
 			if resultType > 0:
 				tempVar = {'dir':tempVarCount[resultType], 'type':resultType}
 				addQuadruple(operation, operand1['dir'], operand2['dir'], tempVar['dir'])
@@ -719,9 +737,11 @@ def convertVariableToArray(size):
 	global varGlobal
 	global varLocal
 	if scope == 'global':
+		globalVarCount[varGlobal[lastVarName]['type']] += (size - 1)
 		varGlobal[lastVarName]['type'] *= 11
 		varGlobal[lastVarName]['size'] = size
 	else:
+		localVarCount[varLocal[lastVarName]['type']] += (size - 1)
 		varLocal[lastVarName]['type'] *= 11
 		varLocal[lastVarName]['size'] = size
 
