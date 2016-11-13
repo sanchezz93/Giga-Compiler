@@ -43,7 +43,7 @@ cteArrayStack = []
 sendParams = []
 argumentCount = 0
 
-constants = {'true':{'value':True, 'type':BOOL, 'dir':INITIALCONSTBOOL+1}, 'false':{'value':False, 'type':BOOL, 'dir':INITIALCONSTBOOL}, '-1':{'value':-1, 'type':INT, 'dir':INITIALCONSTINT}}
+constants = {'true':{'value':True, 'type':BOOL, 'dir':constVarCount[BOOL]+1}, 'false':{'value':False, 'type':BOOL, 'dir':constVarCount[BOOL]}, '-1':{'value':-1, 'type':INT, 'dir':constVarCount[INT]}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
@@ -55,8 +55,8 @@ lastFuncName = None
 funcTypeNext = False
 scope = 'global'
 
-INITIALCONSTBOOL += 2
-INITIALCONSTINT += 1
+constVarCount[BOOL] += 2
+constVarCount[INT] += 1
 
 # Tokens
 
