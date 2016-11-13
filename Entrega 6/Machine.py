@@ -6,17 +6,13 @@ from Cube import *
 def executeVirtualMachine(functions, quadruples, constants):
 
 	print("Virtual machine running...")
+	print("---------------------------")
 
 	countQuadruples = 0
-
-
-
-	activeMemory = Memory('module', constVarCount , tempVarCount)
-	globalMemory = Memory('main', globalVarCount , 0)
+	activeMemory = Memory('module', localVarCount, globalVarCount , tempVarCount)
 	
 	while quadruples[countQuadruples]['op'] != 'END' :
 		quadruple = quadruples[countQuadruples]
-		print(quadruple)
 		#Change to the real values when handling memory
 		if quadruple['op'] == '+':
 			var1 = quadruple['var1']
@@ -24,12 +20,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -43,12 +39,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 			
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -58,39 +54,31 @@ def executeVirtualMachine(functions, quadruples, constants):
 
 		elif quadruple['op'] == '=':
 			var1 = quadruple['var1']
-			var2 = quadruple['var2']
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
-			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
-			else:
-				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
-
-			resultValue = valueVar1 = valueVar2
-
+			resultValue = valueVar1 
 			activeMemory.storeValue(result, resultValue)
 
 		elif quadruple['op'] == '*':
 			var1 = quadruple['var1']
 			var2 = quadruple['var2']
 			result = quadruple['result']
-
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
-
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
-			
-			resultValue = float(valueVar1) * float(valueVar2)
+
+
+			resultValue = valueVar1 * valueVar2
 
 			activeMemory.storeValue(result, resultValue)
 
@@ -100,12 +88,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -119,12 +107,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -138,12 +126,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -158,12 +146,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -177,12 +165,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -196,12 +184,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -216,12 +204,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -235,12 +223,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -254,12 +242,12 @@ def executeVirtualMachine(functions, quadruples, constants):
 			result = quadruple['result']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 
 			if var2 >= 10000 and var2 < 20000:
-				valueVar2 = globalMemory.getValueAtAddress(var2, constants)
+				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 			else:
 				valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
@@ -271,7 +259,7 @@ def executeVirtualMachine(functions, quadruples, constants):
 			var1 = quadruple['resultado']
 
 			if var1 >= 10000 and var1 < 20000:
-				valueVar1 = globalMemory.getValueAtAddress(var1, constants)
+				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			else:
 				valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 

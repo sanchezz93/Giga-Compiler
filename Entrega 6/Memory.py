@@ -3,173 +3,233 @@ from Cube import *
 
 class Memory:
 
-	def __init__(self, name, variables, tempVariables):
+	def __init__(self, name, localVariables, globalVariables, tempVariables):
 		self.name = name
 		# alocates memory by data type 
 		# variables 
 		# self.int = variables[Amount of type] * [""] 
 		# creates a list of variables 
+		self.localBools = ( localVariables[BOOL] - INTIALLOCALBOOL + 1) * [None] 
+		self.localInts = ( localVariables[INT] - INITIALLOCALINT + 1) * [None]
+		self.localFloats =  ( localVariables[FLOAT] - INITIALLOCALFLOAT + 1 ) * [None]
+		self.localStrings = ( localVariables[STRING] - INTIALLOCALSTRING + 1) * [None]
+
+		self.globalBools = ( globalVariables[BOOL] - INITIALGLOBALBOOL + 1 ) * [None]
+		self.globalInts = ( globalVariables[INT] - INITIALGLOBALINT + 1 ) * [None]
+		self.globalFloats = ( globalVariables[FLOAT] - INITIALGLOBALFLOAT + 1 ) * [None]
+		self.globalStrings = ( globalVariables[STRING] - INITIALGLOBALSTRING + 1 ) * [None]
 		
-		self.bools = variables[BOOL] * [""]
-		self.ints = variables[INT] * [""]
-		self.floats = variables[FLOAT] * [""]
-		self.strings = variables[STRING] * [""]
-
-		if(tempVariables != 0):
-			self.tempBools = (tempVariables[BOOL] - INITIALTEMPBOOL) * [""]
-			self.tempInts = (tempVariables[INT] - INITIALTEMPINT) * [""]
-			self.tempFloats = (tempVariables[FLOAT] - INTIALTEMPFLOAT) * [""]
-			self.tempString = (tempVariables[STRING] - INITIALTEMPSTRING) * [""]
+		self.tempBools = (tempVariables[BOOL] - INITIALTEMPBOOL + 1) * [None]
+		self.tempInts = (tempVariables[INT] - INITIALTEMPINT + 1) * [None]
+		self.tempFloats = (tempVariables[FLOAT] - INITIALTEMPFLOAT + 1) * [None]
+		self.tempString = (tempVariables[STRING] - INITIALTEMPSTRING + 1) * [None]
 		
-	def getGeneralInfo(self, address):
-		if address >= INITIALGLOBALBOOL and address < INITIALGLOBALSTRING:
-			if address >= INITIALGLOBALBOOL and address < INITIALGLOBALINT:
-				offset = address - INITIALGLOBALBOOL 
-				variableType = BOOL
-				return ['GLOBAL', offset , variableType]
 
-			elif address >= INITIALGLOBALINT and address < INITIALGLOBALFLOAT:
-				offset = address - INITIALGLOBALINT
-				variableType = INT
-				return ['GLOBAL', offset, variableType]
-
-			elif adress >= INITIALGLOBALFLOAT and address < INITIALGLOBALBOOL:
-				offset = address - INITIALGLOBALFLOAT 
-				variableType = FLOAT
-				return ['GLOBAL', offset, variableType]
-
-			elif address >= INITIALGLOBALBOOL and address < INTIALLOCALBOOL:
-				offset = address - INITIALGLOBALBOOL
-				variableType = STRING
-				return ['GLOBAL', offset, variableType]
-
-		elif address >= INTIALLOCALBOOL and address < INTIALLOCALSTRING:
-			if address >= INTIALLOCALBOOL and address < INTIALLOCALINT:
-				offset = address - INTIALLOCALBOOL 
-				variableType = BOOL
-				return ['LOCAL', offset , variableType]
-
-			elif address >= INTIALLOCALINT and address < INTIALLOCALFLOAT:
-				offset = address - INTIALLOCALINT
-				variableType = INT
-				return ['LOCAL', offset, variableType]
-
-			elif adress >= INTIALLOCALFLOAT and address < INTIALLOCALSTRING:
-				offset = address - INTIALLOCALFLOAT 
-				variableType = FLOAT
-				return ['LOCAL', offset, variableType]
-
-			elif address >= INTIALLOCALSTRING and address < INITIALTEMPBOOL:
-				offset = address - INTIALLOCALSTRING
-				variableType = STRING
-				return ['LOCAL', offset, variableType]
-
-		elif address >= INITIALTEMPBOOL and address < INITIALTEMPSTRING:
-			if address >= INITIALTEMPBOOL and address < INITIALTEMPINT:
-				offset = address - INITIALTEMPBOOL 
-				variableType = BOOL
-				return ['TEMP', offset , variableType]
-
-			elif address >= INITIALTEMPINT and address < INTIALTEMPFLOAT:
-				offset = address - INITIALTEMPINT
-				variableType = INT
-				return ['TEMP', offset, variableType]
-
-			elif adress >= INTIALTEMPFLOAT and address < INITIALTEMPSTRING:
-				offset = address - INTIALTEMPFLOAT 
-				variableType = FLOAT
-				return ['TEMP', offset, variableType]
-
-			elif address >= INITIALTEMPSTRING and address < INITIALCONSTBOOL:
-				offset = address - INITIALTEMPSTRING
-				variableType = STRING
-				return ['TEMP', offset, variableType]
-
-		elif address >= INITIALCONSTBOOL and address < INTIALCONSTSTRING:
-			if address >= INITIALCONSTBOOL and address < INITIALCONSTINT:
-				offset = address - INITIALCONSTBOOL 
-				variableType = BOOL
-				return ['CONSTANT', offset , variableType]
-
-			elif address >= INITIALCONSTINT and address < INITIALCONSTFLOAT:
-				offset = address - INITIALCONSTINT
-				variableType = INT
-				return ['CONSTANT', offset, variableType]
-
-			elif adress >= INITIALCONSTFLOAT and address < INTIALCONSTSTRING:
-				offset = address - INITIALCONSTFLOAT 
-				variableType = FLOAT
-				return ['CONSTANT', offset, variableType]
-
-			elif address >= INTIALCONSTSTRING and address < MAXVARIABLECOUNT:
-				offset = address - INTIALCONSTSTRING
-				variableType = STRING
-				return ['CONSTANT', offset, variableType]
-
-	def getArrayOfType(self, scope, varType):
-		if scope == 'GLOBAL' or scope == 'LOCAL':
-			if varType == BOOL:
-				return self.bools
-			elif varType == INT:
-				return self.ints
-			elif varType == FLOAT:
-				return self.floats
-			elif varType == STRING:
-				return self.strings
+	def getArrayOfType(self, scope, variableType):
+		if scope == 'GLOBAL':
+			if variableType == BOOL:
+				return self.globalBools
+			elif variableType == INT:
+				return self.globalInts
+			elif variableType == FLOAT:
+				return self.globalFloats
+			elif variableType == STRING:
+				return self.globalStrings
+		elif scope =='LOCAL':
+			if variableType == BOOL:
+				return self.localBools
+			elif variableType == INT:
+				return self.localInts
+			elif variableType == FLOAT:
+				return self.localFloats
+			elif variableType == STRING:
+				return self.localStrings
 		elif scope == 'TEMP':
-			if varType == BOOL:
+			if variableType == BOOL:
 				return self.tempBools
-			elif varType == INT:
+			elif variableType == INT:
 				return self.tempInts
-			elif varType == FLOAT:
+			elif variableType == FLOAT:
 				return self.tempFloats
-			elif varType == STRING:
+			elif variableType == STRING:
 				return self.tempString
+
+
+	def getScopeOfAddress(self, address):
+		if address >= INITIALGLOBALBOOL and address < INTIALLOCALBOOL:
+			return ['GLOBAL']
+		elif address >= INTIALLOCALBOOL and address < INITIALTEMPBOOL:
+			return ['LOCAL']
+		elif address >= INITIALTEMPBOOL and address < INITIALCONSTBOOL:
+			return ['TEMP']
+		elif address >= INITIALCONSTBOOL and address < MAXVARIABLECOUNT:
+			return ['CONSTANT']
+
+
+	def getVariableType(self, address, scope):
+		if scope == 'GLOBAL':
+			if address >= INITIALGLOBALBOOL and address < INITIALGLOBALINT:
+				return [BOOL]
+			elif address >= INITIALGLOBALINT and address < INITIALGLOBALFLOAT:
+				return [INT]
+			elif address >= INITIALGLOBALFLOAT and address < INITIALGLOBALSTRING:
+				return [FLOAT]
+			elif address >= INITIALGLOBALSTRING and address < INTIALLOCALBOOL:
+				return [STRING]
+		elif scope == 'LOCAL':
+			if address >= INTIALLOCALBOOL and address < INITIALLOCALINT:
+				return [BOOL]
+			elif address >= INITIALLOCALINT and address < INITIALLOCALFLOAT:
+				return [INT]
+			elif address >= INITIALLOCALFLOAT and address < INTIALLOCALSTRING:
+				return [FLOAT]
+			elif address >= INTIALLOCALSTRING and address < INITIALTEMPBOOL:
+				return [STRING]
+		elif scope == 'TEMP':
+			if address >= INITIALTEMPBOOL and address < INITIALTEMPINT:
+				return [BOOL]
+			elif address >= INITIALTEMPINT and address < INITIALTEMPFLOAT:
+				return [INT]
+			elif address >= INITIALTEMPFLOAT and address < INITIALTEMPSTRING:
+				return [FLOAT]
+			elif address >= INITIALTEMPSTRING and address < INITIALCONSTBOOL:
+				return [STRING]
+		elif scope == 'CONSTANT':
+			if address >= INITIALCONSTBOOL and address < INITIALCONSTINT:
+				return [BOOL]
+			elif address >= INITIALCONSTINT and address < INITIALCONSTFLOAT:
+				return [INT]
+			elif address >= INITIALCONSTFLOAT and address < INITIALCONSTSTRING:
+				return [FLOAT]
+			elif address >= INITIALCONSTSTRING and address < MAXVARIABLECOUNT:
+				return [STRING]
+
+
+	def getOffset(self, address, scope, varType):
+		if scope == 'GLOBAL': 
+			if varType == 1:
+				return [address - INITIALGLOBALBOOL]
+			elif varType == 2:
+				return [address - INITIALGLOBALINT]
+			elif varType == 3:
+				return [address - INITIALGLOBALFLOAT]
+			elif varType == 4:
+				return [address - INITIALGLOBALSTRING]
+		elif scope == 'LOCAL':
+			if varType == 1:
+				return [address - INTIALLOCALBOOL]
+			elif varType == 2:
+				return [address - INITIALLOCALINT]
+			elif varType == 3:
+				return [address - INITIALLOCALFLOAT]
+			elif varType == 4:
+				return [address - INTIALLOCALSTRING]
+		elif scope == 'TEMP':
+			if varType == 1:
+				return [address - INITIALTEMPBOOL]
+			elif varType == 2:
+				return [address - INITIALTEMPINT]
+			elif varType == 3:	
+				return [address - INITIALTEMPFLOAT]
+			elif varType == 4:
+				return [address - INITIALTEMPSTRING]
+		elif scope == 'CONSTANT':
+			if varType == 1:
+				return [address - INITIALCONSTBOOL]
+			elif varType == 2:
+				return [address - INITIALCONSTINT]
+			elif varType == 3:
+				return [address - INITIALCONSTFLOAT]
+			elif varType == 4:
+				return [address - INITIALCONSTSTRING]
+
 
 
 	def getValueAtAddress(self, address, constants):
 		if address == '':
 			return
-		print(address)
-		print(self.getGeneralInfo(address))
-		scope = self.getGeneralInfo(address)[0]
-		offset = self.getGeneralInfo(address)[1]
-		variableType = self.getGeneralInfo(address)[2]
-
+		scope = self.getScopeOfAddress(address)[0]
+		variableType = self.getVariableType(address, scope)[0]
+		offset = self.getOffset(address, scope, variableType)[0]
 		if scope != 'CONSTANT':
-			mem = getArrayOfType(scope, variableType)
+			mem = self.getArrayOfType(scope, variableType)
 			if offset > len(mem):
 				print("Error variable doesn't exist")
 				exit(1)
-			if variableType == BOOL:
-				return mem[offset]
-			elif variableType == INT:
-				return int(mem[offset])
-			elif variableType == FLOAT:
-				return float(mem[offset])
-			elif variableType == STRING:
-				return mem[offset]
+			if scope == 'GLOBAL':
+				if variableType == BOOL:
+					return self.globalBools[offset]
+				elif variableType == INT:
+					return int(self.globalInts[offset])
+				elif variableType == FLOAT:
+					return float(self.globalFloats[offset])
+				elif variableType == STRING:
+					return self.globalStrings[offset]
+			elif scope =='LOCAL':
+				if variableType == BOOL:
+					return self.localBools[offset]
+				elif variableType == INT:
+					return self.localInts[offset]
+				elif variableType == FLOAT:
+					return self.localFloats[offset]
+				elif variableType == STRING:
+					return self.localStrings[offset]
 
+			elif scope == 'TEMP':
+				if variableType == BOOL:
+					return self.tempBools[offset]
+				elif variableType == INT:
+					return self.tempInts[offset]
+				elif variableType == FLOAT:
+					return self.tempFloats[offset]
+				elif variableType == STRING:
+					return self.tempString[offset]
 		else:
 			keys = constants.keys()
 			counter = 0 
 			for key in constants:
 				if(constants[key]['dir'] == address):
-					return keys[counter]
-				counter +=1
-
+					return constants[key]['value']
 
 	def storeValue(self, address, value):
-		scope = self.getGeneralInfo(address)[0]
-		offset = self.getGeneralInfo(address)[1]
-		variableType = self.getGeneralInfo(address)[2]
+		scope = self.getScopeOfAddress(address)[0]
+		variableType = self.getVariableType(address, scope)[0]
+		offset = self.getOffset(address, scope, variableType)[0]
 		mem = self.getArrayOfType(scope, variableType)
-
+		
 		if offset >= len(mem):
+			print(offset)
+			print(scope)
+			print(variableType)
 			print(" Error address doesn't exist")
 			exit(1)
-		mem[offset] = value
-
+		if scope == 'GLOBAL':
+			if variableType == BOOL:
+				self.globalBools[offset]= value
+			elif variableType == INT:
+				self.globalInts[offset]= value
+			elif variableType == FLOAT:
+				self.globalFloats[offset]= value
+			elif variableType == STRING:
+				self.globalStrings[offset]= value
+		elif scope =='LOCAL':
+			if variableType == BOOL:
+				self.localBools[offset]= value
+			elif variableType == INT:
+				self.localInts[offset]= value
+			elif variableType == FLOAT:
+				self.localFloats[offset]= value
+			elif variableType == STRING:
+				self.localStrings[offset]= value
+		elif scope == 'TEMP':
+			if variableType == BOOL:
+				self.tempBools[offset]= value
+			elif variableType == INT:
+				self.tempInts[offset]= value
+			elif variableType == FLOAT:
+				self.tempFloats[offset]= value
+			elif variableType == STRING:
+				self.tempString[offset]= value
 
 
 

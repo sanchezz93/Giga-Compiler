@@ -17,21 +17,21 @@ globalVarCount[STRING] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
 localVarCount[BOOL] = INTIALLOCALBOOL
-localVarCount[INT] =  INTIALLOCALINT
-localVarCount[FLOAT] =  INTIALLOCALFLOAT
+localVarCount[INT] =  INITIALLOCALINT
+localVarCount[FLOAT] =  INITIALLOCALFLOAT
 localVarCount[STRING] =  INTIALLOCALSTRING
 
 tempVarCount = {}			#30000
 tempVarCount[BOOL] = INITIALTEMPBOOL
 tempVarCount[INT] =  INITIALTEMPINT
-tempVarCount[FLOAT] = INTIALTEMPFLOAT
+tempVarCount[FLOAT] = INITIALTEMPFLOAT
 tempVarCount[STRING] = INITIALTEMPSTRING
 
 constVarCount = {}			#40000
 constVarCount[BOOL] = INITIALCONSTBOOL
 constVarCount[INT] = INITIALCONSTINT
 constVarCount[FLOAT] = INITIALCONSTFLOAT
-constVarCount[STRING] = INTIALCONSTSTRING
+constVarCount[STRING] = INITIALCONSTSTRING
 
 quadruples = []
 operandStack = []
@@ -808,6 +808,7 @@ if __name__ == '__main__':
 			# Parse the data
 			if (yacc.parse(data, tracking = True) == 'OK'):
 				print(dirProc);
+
 			executeVirtualMachine(funcGlobal, quadruples, constants)
 		except EOFError:
 	   		print(EOFError)
