@@ -16,10 +16,10 @@ globalVarCount[FLOAT] = INITIALGLOBALFLOAT
 globalVarCount[STRING] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
-localVarCount[BOOL] = INTIALLOCALBOOL
+localVarCount[BOOL] = INITIALLOCALBOOL
 localVarCount[INT] =  INITIALLOCALINT
 localVarCount[FLOAT] =  INITIALLOCALFLOAT
-localVarCount[STRING] =  INTIALLOCALSTRING
+localVarCount[STRING] =  INITIALLOCALSTRING
 
 tempVarCount = {}			#30000
 tempVarCount[BOOL] = INITIALTEMPBOOL
@@ -33,6 +33,8 @@ constVarCount[INT] = INITIALCONSTINT
 constVarCount[FLOAT] = INITIALCONSTFLOAT
 constVarCount[STRING] = INITIALCONSTSTRING
 
+pointerCount = INITIALPOINTER
+
 quadruples = []
 operandStack = []
 operationStack = []
@@ -41,7 +43,7 @@ cteArrayStack = []
 sendParams = []
 argumentCount = 0
 
-constants = {'true':{'value':True, 'type':BOOL, 'dir':40001}, 'false':{'value':False, 'type':BOOL, 'dir':40000}, '-1':{'value':-1, 'type':INT, 'dir':42500}}
+constants = {'true':{'value':True, 'type':BOOL, 'dir':INITIALCONSTBOOL+1}, 'false':{'value':False, 'type':BOOL, 'dir':INITIALCONSTBOOL}, '-1':{'value':-1, 'type':INT, 'dir':INITIALCONSTINT}}
 varGlobal = {}
 varLocal = {}
 funcGlobal = {}
@@ -53,7 +55,8 @@ lastFuncName = None
 funcTypeNext = False
 scope = 'global'
 
-
+INITIALCONSTBOOL += 2
+INITIALCONSTINT += 1
 
 # Tokens
 
@@ -162,6 +165,7 @@ def p_vars1(p):
 	'''vars1 : ID addVariable ASSIGN signedCte
 			| ID addVariable vars3 ASSIGN constantArray'''
 	var = {}
+	verifyVar(p[1])
 	if p[1] in varLocal.keys():
 		var = varLocal[p[1]]
 	else:
@@ -172,23 +176,19 @@ def p_vars1(p):
 			addQuadruple('*', constants['-1']['dir'], constants[p[4]]['dir'], var['dir'])
 		else:
 			addQuadruple('=', constants[p[4]]['dir'], '', var['dir'])
-		if getResultType(var['type'], '=', constants[p[4]]['type']) < 0:
-			print('Error: Assignment type mismatch')
-			exit(1)
+		if getResultType(var['type']%10, '=', constants[p[4]]['type']%10) < 0:
+			error('Error: Assignment type mismatch')
 	else:#array
-		print(cteArrayStack)
 		if var['size'] == len(cteArrayStack):
 			dir = var['dir']
 			for i in range(0, var['size']):
 				value = cteArrayStack.pop()
-				if getResultType(var['type']%10, '=', constants[value]['type']) < 0:
-					print('Error: Assignment type mismatch')
-					exit(1)
+				if getResultType(var['type']%10, '=', constants[value]['type']%10) < 0:
+					error('Error: Assignment type mismatch')
 				addQuadruple('=', constants[value]['dir'], '', dir)
 				dir += 1
 		else:
-			print('Error: Assignment of array does not match the size of the array declared')
-			exit(1)
+			error('Error: Assignment of array does not match the size of the array declared')
 
 def p_vars(p):
 	'''vars : type vars1 vars2 SEMICOLON'''
@@ -213,15 +213,6 @@ def p_maing(p):
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
 		print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
-	print('--------')
-	print('-------- stacks')
-	print(operandStack)
-	print(operationStack)
-	print(jumpStack)
-	print('--------')
-	print('global vars: %s' % varGlobal)
-	print('functions: %s' % funcGlobal)
-	print('constants: %s' % constants)
 
 def p_block1(p):
 	'''block1 : empty
@@ -241,7 +232,7 @@ def p_write(p):
 	addQuadruple('PRINT', '', '', var['dir'])
 
 def p_readg(p):
-	'''readg : READ LEFTPAREN ID RIGHTPAREN SEMICOLON'''
+	'''readg : READ LEFTPAREN varID RIGHTPAREN SEMICOLON'''
 	var = {}
 	if p[3] in varLocal.keys():
 		var = varLocal[p[3]]
@@ -274,8 +265,7 @@ def p_expression1(p):
 				operandStack.append(tempVar)
 				tempVarCount[resultType] += 1
 			else:
-				print('Error: Expression type mismatch')
-				exit(1)
+				error('Error: Expression type mismatch')
 		p[0] = tempVar
 def p_expression(p):
 	'''expression : exp expression1'''
@@ -315,7 +305,8 @@ def p_factor1(p):
 			tempVarCount[resultType] += 1
 	else:
 		operand = getOperand(p[1])
-	operandStack.append(operand)
+	if operand['type'] < 10:
+		operandStack.append(operand)
 def p_factor(p):
 	'''factor : LEFTPAREN addFakeBottom expression RIGHTPAREN removeFakeBottom factorEnded
 			| factor1 factorEnded'''	
@@ -342,34 +333,30 @@ def p_call2(p):
 			| COMMA expression addArgument call2'''
 	global argumentCount
 	if argumentCount != len(sendParams):
-		print('Error: Number of arguments doesn\'t match number of parameters declared')
-		exit(1)
+		error('Error: Number of arguments doesn\'t match number of parameters declared')
 	if len(p) == 5:
 		argumentCount -= 1
 		argument = operandStack.pop()
 		parameter = sendParams.pop()
-		resultType = getResultType(parameter['type'], '=', argument['type'])
+		resultType = getResultType(parameter['type']%10, '=', argument['type']%10)
 		if resultType > 0:
 			addQuadruple('PARAM', argument['dir'], '', parameter['dir'])
 		else:
-			print('Error: Argument type doesn\'t match the type of the parameter declared')
-			exit(1)
+			error('Error: Argument type doesn\'t match the type of the parameter declared')
 def p_call1(p):
 	'''call1 : empty
 			| expression addArgument call2'''
 	global argumentCount
 	if argumentCount != len(sendParams):
-		print('Error: Number of arguments doesn\'t match number of parameters declared')
-		exit(1)
+		error('Error: Number of arguments doesn\'t match number of parameters declared')
 	if len(p) == 4:
 		argument = operandStack.pop()
 		parameter = sendParams.pop()
-		resultType = getResultType(parameter['type'], '=', argument['type'])
+		resultType = getResultType(parameter['type']%10, '=', argument['type']%10)
 		if resultType > 0:
 			addQuadruple('PARAM', argument['dir'], '', parameter['dir'])
 		else:
-			print('Error: Argument type doesn\'t match the type of the parameter declared')
-			exit(1)
+			error('Error: Argument type doesn\'t match the type of the parameter declared')
 def p_call(p):
 	'''call : ID prepareParams LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
 	argumentCount = 0
@@ -414,7 +401,7 @@ def p_signedCte(p):
 		if p[1] == '-':
 			p[0] = '-'+p[2]
 def p_cte(p):
-	'''cte : ID
+	'''cte : varID
 			| varArr
 			| TRUE
 			| FALSE
@@ -450,15 +437,12 @@ def p_assignement2(p):
 	'''assignement2 : call
 			| expression SEMICOLON'''
 	if p[1] == VOID:
-		print('Error: Cannot assign a function of type void.')
-		exit(1)
+		error('Error: Cannot assign a function of type void.')
 def p_assignement1(p):
-	'''assignement1 : ID
+	'''assignement1 : varID
 			| varArr'''
 	p[0] = p[1]
-	if not p[1] in varLocal.keys() and not p[1] in varGlobal.keys():
-		print('Error: Cannot assign undeclared variable')
-		exit(1)
+	
 def p_assignement(p):
 	'''assignement : assignement1 ASSIGN assignement2'''
 	var = {}
@@ -467,22 +451,45 @@ def p_assignement(p):
 	else:
 		var = varGlobal[p[1]]
 	operand = operandStack.pop()
-	resultType = getResultType(var['type'], '=', operand['type'])
+	resultType = getResultType(var['type']%10, '=', operand['type']%10)
 	if resultType > 0:
-		addQuadruple('=', operand['dir'], '', var['dir'])
+		if var['type'] < 10:
+			addQuadruple('=', operand['dir'], '', var['dir'])
+		else:
+			addQuadruple('=', operand['dir'], '', operandStack.pop()['dir'])
 	else:
-		print('Error: Assignment type mismatch')
-		exit(1)
+		error('Error: Assignment type mismatch')
 
 def p_varArr(p):
 	'''varArr : ID LEFTSQBKT exp RIGHTSQBKT'''
+	global pointerCount
+	verifyVar(p[1])
 	var = {}
 	if p[1] in varLocal.keys():
 		var = varLocal[p[1]]
 	else:
 		var = varGlobal[p[1]]
-	print('vararr')
-	print(var)
+	position = operandStack.pop()['dir']
+	addQuadruple('VERIFY', position, '', var['size'])
+	addQuadruple('+', var['dir'], position, pointerCount)
+	operandStack.append({'dir':pointerCount, 'type':var['type']%10})
+	pointerCount += 1
+	p[0] = p[1]
+
+def p_varID(p):
+	'''varID : ID'''
+	verifyVar(p[1])
+	var = p[1]
+	usesArrayVar = False
+	if var in varLocal.keys():
+		if varLocal[var]['type'] > 10:
+			usesArrayVar = True
+	if var in varGlobal.keys():
+		if varGlobal[var]['type'] > 10:
+			usesArrayVar = True
+	if usesArrayVar:
+		error('Cannot use array variable without specifying an index.')
+	p[0] = p[1]
 
 def p_type(p):
 	'''type : TBOOL addType
@@ -490,7 +497,9 @@ def p_type(p):
 			| TFLOAT addType
 			| TSTRING addType'''
 
-
+def verifyVar(var):
+	if not var in varLocal.keys() and not var in varGlobal.keys():
+		error('Error: Cannot assign undeclared variable')
 
 # extra grammar
 def p_addVariable(p):
@@ -570,8 +579,7 @@ def p_termEnded(p):
 				operandStack.append(tempVar)
 				tempVarCount[resultType] += 1
 			else:
-				print('Error: Term type mismatch')
-				exit(1)
+				error('Error: Term type mismatch')
 	p[0] = "hio"
 
 def p_factorEnded(p):
@@ -590,8 +598,7 @@ def p_factorEnded(p):
 				operandStack.append(tempVar)
 				tempVarCount[resultType] += 1
 			else:
-				print('Error: Factor type mismatch')
-				exit(1)
+				error('Error: Factor type mismatch')
 
 def p_addFakeBottom(p):
 	'''addFakeBottom : empty'''
@@ -624,8 +631,7 @@ def p_ifStart2(p):
 		addQuadruple('GOTOF', condition, '', '')
 		jumpStack.append(len(quadruples)-1)
 	else:
-		print('Error: Condition in \'if\' statement must evaluate to a bool.')
-		exit(1)
+		error('Error: Condition in \'if\' statement must evaluate to a bool.')
 
 def p_ifContinue(p):
 	'''ifContinue : empty'''
@@ -651,8 +657,7 @@ def p_whileCheck(p):
 		addQuadruple('GOTOF', condition, '', '')
 		jumpStack.append(len(quadruples)-1)
 	else:
-		print('Error: Condition in \'if\' statement must evaluate to a bool.')
-		exit(1)
+		error('Error: Condition in \'if\' statement must evaluate to a bool.')
 
 def p_whileEnd(p):
 	'''whileEnd : empty'''
@@ -677,14 +682,11 @@ def p_funcStart(p):
 
 def p_funcReturn(p):
 	'''funcReturn : empty'''
-	print('return')
-	print(p[-1])
 	value = operandStack.pop()
 	if value['type'] == funcGlobal[lastFuncName]['type']:
 		addQuadruple('RETURN', '', '', value['dir'])
 	else:
-		print('Error: Type of return value in function doesn\'t match function\'s declared type.')
-		exit(1)
+		error('Error: Type of return value in function doesn\'t match function\'s declared type.')
 
 def p_funcEnd(p):
 	'''funcEnd : empty'''
@@ -696,10 +698,9 @@ def p_funcEnd(p):
 
 def p_error(p):
 	if p:
-		print("Syntax error at '%s'" % p)#p.value)
+		error("Syntax error at '%s'" % p)#p.value)
 	else:
-		print("Syntax error at EOF")
-	exit(1)
+		error("Syntax error at EOF")
 
 
 import ply.yacc as yacc
@@ -709,26 +710,27 @@ yacc.yacc()
 
 #Functions
 
+def error(str):
+	print(str)
+	exit(1)
+
 def addVariable(variable, varType):
 	global varGlobal
 	global varLocal
 	if variable in funcGlobal.keys():
-		print("Variable error: Variable cannot have the same name as a function")
-		exit(1)
+		error("Variable error: Variable cannot have the same name as a function")
 	if scope == 'global':
 		if not variable in varGlobal.keys():
 			varGlobal[variable] = {'name':variable, 'type':varType, 'dir':globalVarCount[varType]}
 			globalVarCount[varType] += 1
 		else:
-			print("Variable error: Variable is already declared globally")
-			exit(1)
+			error("Variable error: Variable is already declared globally")
 	else:
 		if not variable in varLocal.keys():
 			varLocal[variable] = {'name':variable, 'type':varType, 'dir':localVarCount[varType]}
 			localVarCount[varType] += 1
 		else:
-			print("Variable error: Variable is already declared locally")
-			exit(1)
+			error("Variable error: Variable is already declared locally")
 
 def convertVariableToArray(size):
 	global varGlobal
@@ -745,16 +747,14 @@ def convertVariableToArray(size):
 def addFunction(name, funType, startQuadruple):
 	global funcGlobal
 	if name in varGlobal.keys():
-		print("Function error: Function cannot have the same name as a variable")
-		exit(1)
+		error("Function error: Function cannot have the same name as a variable")
 	if not name in funcGlobal.keys():
 		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'stringCount':localVarCount[STRING], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'stringTempCount':tempVarCount[STRING]}
 		if funType != 0:
 			funcGlobal[name]['dir'] = globalVarCount[funType]
 			globalVarCount[funType] += 1
 	else:
-		print("Function error: Function is already declared")
-		exit(1)
+		error("Function error: Function is already declared")
 
 def addQuadruple(operation, var1, var2, result):
 	global quadruples
@@ -808,8 +808,7 @@ if __name__ == '__main__':
 			# Parse the data
 			if (yacc.parse(data, tracking = True) == 'OK'):
 				print(dirProc);
-
-			executeVirtualMachine(funcGlobal, quadruples, constants)
+			# executeVirtualMachine(funcGlobal, quadruples, constants)
 		except EOFError:
 	   		print(EOFError)
 	else:

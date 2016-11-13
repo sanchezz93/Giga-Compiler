@@ -154,8 +154,7 @@ class Memory:
 		if scope != 'CONSTANT':
 			mem = self.getArrayOfType(scope, variableType)
 			if offset > len(mem):
-				print("Error variable doesn't exist")
-				exit(1)
+				error("Error variable doesn't exist")
 			if scope == 'GLOBAL':
 				if variableType == BOOL:
 					return self.globalBools[offset]
@@ -198,11 +197,7 @@ class Memory:
 		mem = self.getArrayOfType(scope, variableType)
 		
 		if offset >= len(mem):
-			print(offset)
-			print(scope)
-			print(variableType)
-			print(" Error address doesn't exist")
-			exit(1)
+			error(" Error address doesn't exist")
 		if scope == 'GLOBAL':
 			if variableType == BOOL:
 				self.globalBools[offset]= value
