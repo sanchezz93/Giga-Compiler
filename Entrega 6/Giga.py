@@ -229,7 +229,10 @@ def p_write(p):
 		var = varGlobal[p[3]]
 	else:
 		var = constants[p[3]]
-	addQuadruple('PRINT', '', '', var['dir'])
+	if var['type'] > 10:
+		addQuadruple('PRINT', '', '', var['dir'])
+	else:
+		addQuadruple('PRINT', '', '', operandStack.pop())
 
 def p_readg(p):
 	'''readg : READ LEFTPAREN varID RIGHTPAREN SEMICOLON'''
