@@ -181,12 +181,19 @@ def p_vars1(p):
 	else:#array
 		if var['size'] == len(cteArrayStack):
 			dir = var['dir']
+			local = False
+			if var in varLocal.keys():
+				local = True
 			for i in range(0, var['size']):
 				value = cteArrayStack.pop()
 				if getResultType(var['type']%10, '=', constants[value]['type']%10) < 0:
 					error('Error: Assignment type mismatch')
 				addQuadruple('=', constants[value]['dir'], '', dir)
 				dir += 1
+				if local:
+					localVarCount[var['type']%10] += 1
+				else:
+					globalVarCount[var['type']%10] += 1
 		else:
 			error('Error: Assignment of array does not match the size of the array declared')
 
@@ -209,6 +216,7 @@ def p_funcg(p):
 def p_maing(p):
 	'''maing : MAIN changeToLocalScope completeJumpToMain block'''
 	addQuadruple('END', '', '', '')
+	print(globalVarCount)
 	print('-------- quadruples')
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
@@ -230,9 +238,10 @@ def p_write(p):
 	else:
 		var = constants[p[3]]
 	if var['type'] > 10:
-		addQuadruple('PRINT', '', '', var['dir'])
+		addQuadruple('PRINT', '', '', operandStack.pop()['dir'])
 	else:
-		addQuadruple('PRINT', '', '', operandStack.pop())
+		addQuadruple('PRINT', '', '', var['dir'])
+
 
 def p_readg(p):
 	'''readg : READ LEFTPAREN varID RIGHTPAREN SEMICOLON'''
@@ -631,7 +640,7 @@ def p_ifStart2(p):
 	'''ifStart2 : empty'''
 	condition = operandStack.pop()
 	if condition['type'] == BOOL:
-		addQuadruple('GOTOF', condition, '', '')
+		addQuadruple('GOTOF', condition['dir'], '', '')
 		jumpStack.append(len(quadruples)-1)
 	else:
 		error('Error: Condition in \'if\' statement must evaluate to a bool.')
@@ -657,7 +666,7 @@ def p_whileCheck(p):
 	'''whileCheck : empty'''
 	condition = operandStack.pop()
 	if condition['type'] == BOOL:
-		addQuadruple('GOTOF', condition, '', '')
+		addQuadruple('GOTOF', condition['dir'], '', '')
 		jumpStack.append(len(quadruples)-1)
 	else:
 		error('Error: Condition in \'if\' statement must evaluate to a bool.')
@@ -811,7 +820,7 @@ if __name__ == '__main__':
 			# Parse the data
 			if (yacc.parse(data, tracking = True) == 'OK'):
 				print(dirProc);
-			# executeVirtualMachine(funcGlobal, quadruples, constants)
+			executeVirtualMachine(funcGlobal, quadruples, constants, globalVarCount, tempVarCount, localVarCount, pointerCount)
 		except EOFError:
 	   		print(EOFError)
 	else:

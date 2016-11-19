@@ -3,16 +3,16 @@ from Cube import *
 
 class Memory:
 
-	def __init__(self, name, localVariables, globalVariables, tempVariables):
+	def __init__(self, name, localVariables, globalVariables, tempVariables, pointerVariables):
 		self.name = name
 		# alocates memory by data type 
 		# variables 
 		# self.int = variables[Amount of type] * [""] 
 		# creates a list of variables 
-		self.localBools = ( localVariables[BOOL] - INTIALLOCALBOOL + 1) * [None] 
+		self.localBools = ( localVariables[BOOL] - INITIALLOCALBOOL + 1) * [None] 
 		self.localInts = ( localVariables[INT] - INITIALLOCALINT + 1) * [None]
 		self.localFloats =  ( localVariables[FLOAT] - INITIALLOCALFLOAT + 1 ) * [None]
-		self.localStrings = ( localVariables[STRING] - INTIALLOCALSTRING + 1) * [None]
+		self.localStrings = ( localVariables[STRING] - INITIALLOCALSTRING + 1) * [None]
 
 		self.globalBools = ( globalVariables[BOOL] - INITIALGLOBALBOOL + 1 ) * [None]
 		self.globalInts = ( globalVariables[INT] - INITIALGLOBALINT + 1 ) * [None]
@@ -23,6 +23,9 @@ class Memory:
 		self.tempInts = (tempVariables[INT] - INITIALTEMPINT + 1) * [None]
 		self.tempFloats = (tempVariables[FLOAT] - INITIALTEMPFLOAT + 1) * [None]
 		self.tempString = (tempVariables[STRING] - INITIALTEMPSTRING + 1) * [None]
+
+		self.pointer = (pointerVariables - INITIALPOINTER ) * [None]
+		
 		
 
 	def getArrayOfType(self, scope, variableType):
@@ -53,17 +56,20 @@ class Memory:
 				return self.tempFloats
 			elif variableType == STRING:
 				return self.tempString
+		
 
 
 	def getScopeOfAddress(self, address):
-		if address >= INITIALGLOBALBOOL and address < INTIALLOCALBOOL:
+		if address >= INITIALGLOBALBOOL and address < INITIALLOCALBOOL:
 			return ['GLOBAL']
-		elif address >= INTIALLOCALBOOL and address < INITIALTEMPBOOL:
+		elif address >= INITIALLOCALBOOL and address < INITIALTEMPBOOL:
 			return ['LOCAL']
 		elif address >= INITIALTEMPBOOL and address < INITIALCONSTBOOL:
 			return ['TEMP']
 		elif address >= INITIALCONSTBOOL and address < MAXVARIABLECOUNT:
 			return ['CONSTANT']
+		elif address >= MAXVARIABLECOUNT:
+			return ['ARRAY'] 
 
 
 	def getVariableType(self, address, scope):
@@ -74,16 +80,16 @@ class Memory:
 				return [INT]
 			elif address >= INITIALGLOBALFLOAT and address < INITIALGLOBALSTRING:
 				return [FLOAT]
-			elif address >= INITIALGLOBALSTRING and address < INTIALLOCALBOOL:
+			elif address >= INITIALGLOBALSTRING and address < INITIALLOCALBOOL:
 				return [STRING]
 		elif scope == 'LOCAL':
-			if address >= INTIALLOCALBOOL and address < INITIALLOCALINT:
+			if address >= INITIALLOCALBOOL and address < INITIALLOCALINT:
 				return [BOOL]
 			elif address >= INITIALLOCALINT and address < INITIALLOCALFLOAT:
 				return [INT]
-			elif address >= INITIALLOCALFLOAT and address < INTIALLOCALSTRING:
+			elif address >= INITIALLOCALFLOAT and address < INITIALLOCALSTRING:
 				return [FLOAT]
-			elif address >= INTIALLOCALSTRING and address < INITIALTEMPBOOL:
+			elif address >= INITIALLOCALSTRING and address < INITIALTEMPBOOL:
 				return [STRING]
 		elif scope == 'TEMP':
 			if address >= INITIALTEMPBOOL and address < INITIALTEMPINT:
@@ -103,6 +109,7 @@ class Memory:
 				return [FLOAT]
 			elif address >= INITIALCONSTSTRING and address < MAXVARIABLECOUNT:
 				return [STRING]
+		
 
 
 	def getOffset(self, address, scope, varType):
@@ -117,13 +124,13 @@ class Memory:
 				return [address - INITIALGLOBALSTRING]
 		elif scope == 'LOCAL':
 			if varType == 1:
-				return [address - INTIALLOCALBOOL]
+				return [address - INITIALLOCALBOOL]
 			elif varType == 2:
 				return [address - INITIALLOCALINT]
 			elif varType == 3:
 				return [address - INITIALLOCALFLOAT]
 			elif varType == 4:
-				return [address - INTIALLOCALSTRING]
+				return [address - INITIALLOCALSTRING]
 		elif scope == 'TEMP':
 			if varType == 1:
 				return [address - INITIALTEMPBOOL]
@@ -144,10 +151,14 @@ class Memory:
 				return [address - INITIALCONSTSTRING]
 
 
-
 	def getValueAtAddress(self, address, constants):
 		if address == '':
 			return
+
+		if address >= MAXVARIABLECOUNT :
+			offset = address - MAXVARIABLECOUNT
+			return self.getValueAtAddress(self.pointer[offset], constants)
+
 		scope = self.getScopeOfAddress(address)[0]
 		variableType = self.getVariableType(address, scope)[0]
 		offset = self.getOffset(address, scope, variableType)[0]
@@ -183,6 +194,8 @@ class Memory:
 					return self.tempFloats[offset]
 				elif variableType == STRING:
 					return self.tempString[offset]
+			elif scope == 'ARRAY':
+				return self.getValueAtAddress(self.pointerVariables[offset])
 		else:
 			keys = constants.keys()
 			counter = 0 
@@ -191,6 +204,11 @@ class Memory:
 					return constants[key]['value']
 
 	def storeValue(self, address, value):
+		if address >= MAXVARIABLECOUNT:
+			offset = address - MAXVARIABLECOUNT
+			self.pointer[offset] = value
+			return
+
 		scope = self.getScopeOfAddress(address)[0]
 		variableType = self.getVariableType(address, scope)[0]
 		offset = self.getOffset(address, scope, variableType)[0]
@@ -225,6 +243,9 @@ class Memory:
 				self.tempFloats[offset]= value
 			elif variableType == STRING:
 				self.tempString[offset]= value
+		elif scope == 'ARRAY':
+			self.storeValue(self.pointer[offset], value)
+
 
 
 
