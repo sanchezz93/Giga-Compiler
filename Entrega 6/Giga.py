@@ -221,7 +221,6 @@ def p_maing(p):
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
 		print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
-	print(varLocal)
 
 def p_block1(p):
 	'''block1 : empty
@@ -279,7 +278,7 @@ def p_expression1(p):
 				tempVarCount[resultType] += 1
 			else:
 				error('Error: Expression type mismatch')
-		p[0] = tempVar
+			p[0] = tempVar
 def p_expression(p):
 	'''expression : exp expression1'''
 
@@ -322,7 +321,7 @@ def p_factor1(p):
 		operandStack.append(operand)
 def p_factor(p):
 	'''factor : LEFTPAREN addFakeBottom expression RIGHTPAREN removeFakeBottom factorEnded
-			| factor1 factorEnded'''	
+			| factor1 factorEnded'''
 
 def p_statute(p):
 	'''statute : call

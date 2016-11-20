@@ -23,19 +23,16 @@ class Memory:
 		self.tempFloats = (tempVariables[FLOAT] - INITIALTEMPFLOAT + 1) * [None]
 		self.tempString = (tempVariables[STRING] - INITIALTEMPSTRING + 1) * [None]
 
-		self.pointer = (pointerVariables - INITIALPOINTER ) * [None]
+		self.pointer = (pointerVariables - INITIALPOINTER) * [None]
 
 		self.memoryStack = []
 		
 		
 	def memoryFunc(self, result):
-		# {'intTempCount': 32500, 'stringCount': 27500, 'intCount': 22502, 'boolTempCount': 30000, 'boolCount': 20000, 
-		# 'floatCount': 25000, 'name': 'hola', 'parameters': [], 'stringTempCount': 37500, 'floatTempCount': 35000, 
-		# 'startQuadruple': 1, 'type': 2, 'dir': 12500}
-		self.newLocalBools = ( result['boolCount'] - INITIALLOCALBOOL + 1) * [None] 
-		self.newLocalInts = ( result['intCount'] - INITIALLOCALINT + 1) * [None]
-		self.newLocalFloats =  ( result['floatCount'] - INITIALLOCALFLOAT + 1 ) * [None]
-		self.newLocalStrings = ( result['stringCount'] - INITIALLOCALSTRING + 1) * [None]
+		self.newLocalBools = (result['boolCount'] - INITIALLOCALBOOL + 1) * [None] 
+		self.newLocalInts = (result['intCount'] - INITIALLOCALINT + 1) * [None]
+		self.newLocalFloats = (result['floatCount'] - INITIALLOCALFLOAT + 1 ) * [None]
+		self.newLocalStrings = (result['stringCount'] - INITIALLOCALSTRING + 1) * [None]
 
 		self.newTempBools = (result['boolTempCount'] - INITIALTEMPBOOL + 1) * [None]
 		self.newTempInts = (result['intTempCount'] - INITIALTEMPINT + 1) * [None]
