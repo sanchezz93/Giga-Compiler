@@ -160,7 +160,7 @@ def p_vars3(p):
 	convertVariableToArray(num(p[2]))
 def p_vars2(p):
 	'''vars2 : empty
-			| COMMA vars1'''
+			| COMMA vars1 vars2'''
 def p_vars1(p):
 	'''vars1 : ID addVariable ASSIGN signedCte
 			| ID addVariable vars3 ASSIGN constantArray'''
@@ -221,6 +221,7 @@ def p_maing(p):
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
 		print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
+	print(varLocal)
 
 def p_block1(p):
 	'''block1 : empty
@@ -371,6 +372,7 @@ def p_call1(p):
 			error('Error: Argument type doesn\'t match the type of the parameter declared')
 def p_call(p):
 	'''call : ID prepareParams LEFTPAREN call1 RIGHTPAREN SEMICOLON'''
+	global argumentCount
 	argumentCount = 0
 	addQuadruple('GOFUNC', '', '', funcGlobal[p[1]]['startQuadruple'])
 	if funcGlobal[p[1]]['type'] != VOID:
@@ -380,8 +382,9 @@ def p_call(p):
 def p_prepareParams(p):
 	'''prepareParams : empty'''
 	global sendParams
+	sendParams = list(funcGlobal[p[-1]]['parameters'])
+	print(funcGlobal[p[-1]])
 	addQuadruple('MEMORY', '', '', funcGlobal[p[-1]])
-	sendParams = funcGlobal[p[-1]]['parameters']
 def p_addArgument(p):
 	'''addArgument : empty'''
 	global argumentCount
@@ -691,6 +694,8 @@ def p_completeJumpToMain(p):
 def p_funcStart(p):
 	'''funcStart : empty'''
 	addFunction(lastFuncName, funcType, len(quadruples))
+	funcGlobal[lastFuncName]['parameters'] = funcParameters
+
 
 def p_funcReturn(p):
 	'''funcReturn : empty'''
@@ -702,8 +707,16 @@ def p_funcReturn(p):
 
 def p_funcEnd(p):
 	'''funcEnd : empty'''
-	funcGlobal[lastFuncName]['parameters'] = funcParameters
 	print('local vars: %s' % varLocal)
+	print('temp vars: %s' % tempVarCount)
+	funcGlobal[lastFuncName]['boolCount'] = localVarCount[BOOL]
+	funcGlobal[lastFuncName]['intCount'] = localVarCount[INT]
+	funcGlobal[lastFuncName]['floatCount'] = localVarCount[FLOAT]
+	funcGlobal[lastFuncName]['stringCount'] = localVarCount[STRING]
+	funcGlobal[lastFuncName]['boolTempCount'] = tempVarCount[BOOL]
+	funcGlobal[lastFuncName]['intTempCount'] = tempVarCount[INT]
+	funcGlobal[lastFuncName]['floatTempCount'] = tempVarCount[FLOAT]
+	funcGlobal[lastFuncName]['stringTempCount'] = tempVarCount[STRING]
 	resetLocalCounters()
 	addQuadruple('ENDFUNC', '', '', '')
 
@@ -761,7 +774,7 @@ def addFunction(name, funType, startQuadruple):
 	if name in varGlobal.keys():
 		error("Function error: Function cannot have the same name as a variable")
 	if not name in funcGlobal.keys():
-		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple, 'boolCount':localVarCount[BOOL], 'intCount':localVarCount[INT], 'floatCount':localVarCount[FLOAT], 'stringCount':localVarCount[STRING], 'boolTempCount':tempVarCount[BOOL], 'intTempCount':tempVarCount[INT], 'floatTempCount':tempVarCount[FLOAT], 'stringTempCount':tempVarCount[STRING]}
+		funcGlobal[name] = {'name':name, 'type':funType, 'startQuadruple':startQuadruple}
 		if funType != 0:
 			funcGlobal[name]['dir'] = globalVarCount[funType]
 			globalVarCount[funType] += 1

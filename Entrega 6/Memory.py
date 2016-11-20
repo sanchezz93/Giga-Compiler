@@ -2,7 +2,6 @@ from Giga import *
 from Cube import *
 
 class Memory:
-
 	def __init__(self, name, localVariables, globalVariables, tempVariables, pointerVariables):
 		self.name = name
 		# alocates memory by data type 
@@ -25,7 +24,51 @@ class Memory:
 		self.tempString = (tempVariables[STRING] - INITIALTEMPSTRING + 1) * [None]
 
 		self.pointer = (pointerVariables - INITIALPOINTER ) * [None]
+
+		self.memoryStack = []
 		
+		
+	def memoryFunc(self, result):
+		# {'intTempCount': 32500, 'stringCount': 27500, 'intCount': 22502, 'boolTempCount': 30000, 'boolCount': 20000, 
+		# 'floatCount': 25000, 'name': 'hola', 'parameters': [], 'stringTempCount': 37500, 'floatTempCount': 35000, 
+		# 'startQuadruple': 1, 'type': 2, 'dir': 12500}
+		self.newLocalBools = ( result['boolCount'] - INITIALLOCALBOOL + 1) * [None] 
+		self.newLocalInts = ( result['intCount'] - INITIALLOCALINT + 1) * [None]
+		self.newLocalFloats =  ( result['floatCount'] - INITIALLOCALFLOAT + 1 ) * [None]
+		self.newLocalStrings = ( result['stringCount'] - INITIALLOCALSTRING + 1) * [None]
+
+		self.newTempBools = (result['boolTempCount'] - INITIALTEMPBOOL + 1) * [None]
+		self.newTempInts = (result['intTempCount'] - INITIALTEMPINT + 1) * [None]
+		self.newTempFloats = (result['floatTempCount'] - INITIALTEMPFLOAT + 1) * [None]
+		self.newTempString = (result['stringTempCount'] - INITIALTEMPSTRING + 1) * [None]
+
+
+
+	def sleepMemory(self):
+		oldMemory = {'localBools':self.localBools, 'localInts':self.localInts, 'localFloats':self.localFloats,
+			'localStrings':self.localStrings, 'tempBools':self.tempBools, 'tempInts':self.tempInts, 'tempFloats':self.tempFloats,
+			'tempString':self.tempString}
+		self.memoryStack.append(oldMemory)
+
+		self.localBools = self.newLocalBools
+		self.localInts = self.newLocalInts
+		self.localFloats = self.newLocalFloats
+		self.localStrings = self.newLocalStrings
+		self.tempBools = self.newTempBools
+		self.tempInts = self.newTempInts
+		self.tempFloats = self.newTempFloats
+		self.tempString = self.newTempString
+
+	def wakeMemory(self):
+		newMemory = self.memoryStack.pop()
+		self.localBools = newMemory['localBools']
+		self.localInts = newMemory['localInts']
+		self.localFloats = newMemory['localFloats']
+		self.localStrings = newMemory['localStrings']
+		self.tempBools = newMemory['tempBools']
+		self.tempInts = newMemory['tempInts']
+		self.tempFloats = newMemory['tempFloats']
+		self.tempString = newMemory['tempString']
 		
 
 	def getArrayOfType(self, scope, variableType):
@@ -57,7 +100,16 @@ class Memory:
 			elif variableType == STRING:
 				return self.tempString
 		
-
+	def getNewArrayOfType(self, variableType):
+		if variableType == BOOL:
+			return self.newLocalBools
+		elif variableType == INT:
+			return self.newLocalInts
+		elif variableType == FLOAT:
+			return self.newLocalFloats
+		elif variableType == STRING:
+			return self.newLocalStrings
+		
 
 	def getScopeOfAddress(self, address):
 		if address >= INITIALGLOBALBOOL and address < INITIALLOCALBOOL:
@@ -154,11 +206,9 @@ class Memory:
 	def getValueAtAddress(self, address, constants):
 		if address == '':
 			return
-
 		if address >= MAXVARIABLECOUNT :
 			offset = address - MAXVARIABLECOUNT
 			return self.getValueAtAddress(self.pointer[offset], constants)
-
 		scope = self.getScopeOfAddress(address)[0]
 		variableType = self.getVariableType(address, scope)[0]
 		offset = self.getOffset(address, scope, variableType)[0]
@@ -204,6 +254,7 @@ class Memory:
 					return constants[key]['value']
 
 	def storeValue(self, address, value):
+		
 		if address >= MAXVARIABLECOUNT:
 			offset = address - MAXVARIABLECOUNT
 			self.pointer[offset] = value
@@ -213,7 +264,7 @@ class Memory:
 		variableType = self.getVariableType(address, scope)[0]
 		offset = self.getOffset(address, scope, variableType)[0]
 		mem = self.getArrayOfType(scope, variableType)
-		
+
 		if offset >= len(mem):
 			error(" Error address doesn't exist")
 		if scope == 'GLOBAL':
@@ -243,11 +294,23 @@ class Memory:
 				self.tempFloats[offset]= value
 			elif variableType == STRING:
 				self.tempString[offset]= value
-		elif scope == 'ARRAY':
-			self.storeValue(self.pointer[offset], value)
 
 
-
-
+	def storeParam(self, address, value):
+		scope = self.getScopeOfAddress(address)[0]
+		variableType = self.getVariableType(address, scope)[0]
+		offset = self.getOffset(address, scope, variableType)[0]
+		mem = self.getNewArrayOfType(variableType)
+		if offset >= len(mem):
+			error(" Error address doesn't exist")
+		if variableType == BOOL:
+			self.newLocalBools[offset]= value
+		elif variableType == INT:
+			self.newLocalInts[offset]= value
+		elif variableType == FLOAT:
+			self.newLocalFloats[offset]= value
+		elif variableType == STRING:
+			self.newLocalStrings[offset]= value
+		
 
 

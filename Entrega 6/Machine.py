@@ -8,7 +8,9 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 	print("Virtual machine running...")
 	print("---------------------------")
 	countQuadruples = 0
+	quadruplesStack = []
 	activeMemory = Memory('module', localVarCount, globalVarCount , tempVarCount, pointerCount)
+	returnDirection = None
 	
 	while quadruples[countQuadruples]['op'] != 'END' :
 		quadruple = quadruples[countQuadruples]
@@ -50,16 +52,36 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 		elif quadruple['op'] == '=':
 			var1 = quadruple['var1']
 			result = quadruple['result']
+			resultValue = 0
 
-			valueVar1 = activeMemory.getValueAtAddress(var1, constants)
-
-			resultValue = valueVar1 
-			activeMemory.storeValue(result, resultValue)
+			if result >= MAXVARIABLECOUNT:
+				if var1 >= MAXVARIABLECOUNT:
+					resultNumber = activeMemory.pointer[ var1 - MAXVARIABLECOUNT]
+					resultValue = activeMemory.getValueAtAddress(var1, constants)
+					resultPointer = activeMemory.pointer[ result - MAXVARIABLECOUNT]
+					activeMemory.storeValue(resultPointer, resultValue)
+				else:
+					resultValue = activeMemory.getValueAtAddress(var1, constants)
+					resultPointer = activeMemory.pointer[ result - MAXVARIABLECOUNT]
+					activeMemory.storeValue(resultPointer, resultValue)
+			else:
+				resultValue = activeMemory.getValueAtAddress(var1, constants)
+				activeMemory.storeValue(result, resultValue)
+			
+			# print('---')
+			# print(quadruple)
+			# print(var1)
+			# print(result)
+			# print(resultValue)
+			# print(activeMemory.getValueAtAddress(result, constants))
+			
+			
 
 		elif quadruple['op'] == '*':
 			var1 = quadruple['var1']
 			var2 = quadruple['var2']
 			result = quadruple['result']
+			valueVar1 = activeMemory.getValueAtAddress(var1, constants)
 			valueVar2 = activeMemory.getValueAtAddress(var2, constants)
 
 
@@ -181,6 +203,7 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 			var1 = quadruple['result']
 
 			valueVar1 = activeMemory.getValueAtAddress(var1, constants)
+			#ESTE NO SE BORRA
 			print(valueVar1)
 
 		elif quadruple['op'] == 'VERIFY':
@@ -206,15 +229,36 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 				countQuadruples = quadruple['result'] - 1
 
 		# #This is the GOSUB function
-		# elif quadruple[countQuadruples]['op'] == 'GOFUNC':
-		
-		# #This is the ERA function
-		# elif quadruple[countQuadruples]['op'] == 'MEMORY':
-
-		# elif quadruple[countQuadruples]['op'] == 'PARAM':
-
-		# elif quadruple[countQuadruples]['op'] == 'RETURN':
+		elif quadruple['op'] == 'GOFUNC':
+			activeMemory.sleepMemory()
+			quadruplesStack.append(countQuadruples+1)
+			countQuadruples = num(quadruple['result'])-1
 			
-		# elif quadruple[countQuadruples]['op'] == 'READ':
+		# #This is the ERA function
+		elif quadruple['op'] == 'MEMORY':
+			result = quadruple['result']
+			activeMemory.memoryFunc(result)
+			returnDirection = result['dir']
+
+		elif quadruple['op'] == 'PARAM':
+			var1 = quadruple['var1']
+			valueVar1 = activeMemory.getValueAtAddress(var1, constants)
+			result = quadruple['result']
+			activeMemory.storeParam(result, valueVar1)
+
+
+		elif quadruple['op'] == 'RETURN':
+			var1 = quadruple['result']
+
+			valueVar1 = activeMemory.getValueAtAddress(var1, constants)
+			activeMemory.storeValue(returnDirection, valueVar1)
+
+
+		elif quadruple['op'] == 'ENDFUNC':
+			activeMemory.wakeMemory()
+			countQuadruples = quadruplesStack.pop()-1
+			
+		elif quadruple['op'] == 'READ':
+
 
 		countQuadruples += 1
