@@ -259,6 +259,20 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 			countQuadruples = quadruplesStack.pop()-1
 			
 		elif quadruple['op'] == 'READ':
-
+			result = quadruple['result']
+			scope = activeMemory.getScopeOfAddress(result)[0]
+			variableType = activeMemory.getVariableType(result, scope)[0]
+			if variableType == 1:
+				var = raw_input()
+				activeMemory.storeValue(result, var)
+			elif variableType == 2:
+				var = num(raw_input())
+				activeMemory.storeValue(result, var)
+			elif variableType == 3:
+				var = num(raw_input())
+				activeMemory.storeValue(result, var)
+			elif variableType == 4:
+				var = raw_input()
+				activeMemory.storeValue(result, var)
 
 		countQuadruples += 1

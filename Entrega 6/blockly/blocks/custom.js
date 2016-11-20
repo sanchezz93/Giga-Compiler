@@ -341,7 +341,7 @@ Blockly.Blocks['array_asignation'] = {
         .setCheck(null)
         .appendField(new Blockly.FieldTextInput("id"), "ID")
         .appendField("[")
-        .appendField(new Blockly.FieldNumber(0, 1), "PLACE")
+        .appendField(new Blockly.FieldTextInput("value"), "PLACE")
         .appendField("]")
         .appendField("=");
     this.setPreviousStatement(true, null);
@@ -358,10 +358,9 @@ Blockly.Blocks['array_access'] = {
     this.appendDummyInput()
         .appendField(new Blockly.FieldTextInput("id"), "ID")
         .appendField("[")
-        .appendField(new Blockly.FieldNumber(0, 1), "SIZE")
+        .appendField(new Blockly.FieldTextInput("value"), "SIZE")
         .appendField("]");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
+    this.setOutput(true, null);
     this.setColour(225);
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
@@ -382,8 +381,6 @@ Blockly.Blocks['read'] = {
     this.appendDummyInput()
         .appendField("read")
         .appendField(new Blockly.FieldTextInput("id"), "ID")
-        .appendField("=")
-        .appendField(new Blockly.FieldTextInput("value"), "VALUE");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(250);

@@ -147,7 +147,7 @@ Blockly.JavaScript['variable_with_comma'] = function(block) {
   var text_value = block.getFieldValue('VALUE');
   var value_name = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
   // TODO: Assemble JavaScript into code variable.
-  var code = dropdown_type + ' ' + text_id + '=' + text_value +',';
+  var code = dropdown_type + ' ' + text_id + '=' + text_value +',' + value_name;
   return code;
 };
 
@@ -159,9 +159,9 @@ Blockly.JavaScript['variable_comma'] = function(block) {
   var text_value = block.getFieldValue('VALUE');
   var value_name = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
   // TODO: Assemble JavaScript into code variable.
-  var code = text_id + '=' + text_value + ',';
+  var code = text_id + '=' + text_value + ',' + value_name;
   // TODO: Change ORDER_NONE to the correct strength.
-  return [code, Blockly.JavaScript.ORDER_NONE];
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 
@@ -171,7 +171,7 @@ Blockly.JavaScript['variable_comma_end'] = function(block) {
   // TODO: Assemble JavaScript into code variable.
   var code = text_id + '=' + text_value + ';\n';
   // TODO: Change ORDER_NONE to the correct strength.
-  return [code, Blockly.JavaScript.ORDER_NONE];
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 
@@ -264,18 +264,27 @@ Blockly.JavaScript['array_asignation'] = function(block) {
   var number_place = block.getFieldValue('PLACE');
   var value_name = Blockly.JavaScript.valueToCode(block, 'NAME', Blockly.JavaScript.ORDER_ATOMIC);
   // TODO: Assemble JavaScript into code variable.
-  var code = text_id + '[' + number_size + '] = ' + value_name + ';\n';
+  var code = text_id + '[' + number_place + '] = ' + value_name + ';\n';
+  code = code.replace(/[()]/g,'');
+  code = code.replace(/[¿]/g,'(');
+  code = code.replace(/[?]/g,')');
   return code;
 };
 
 
 Blockly.JavaScript['array_access'] = function(block) {
   var text_id = block.getFieldValue('ID');
-  var number_size = block.getFieldValue('SIZE');
+  var text_size = block.getFieldValue('SIZE');
   // TODO: Assemble JavaScript into code variable.
-  var code = text_id + '[' + number_size + ']';
-  return code;
+  var code = text_id + '[' + text_size + ']'
+  code = code.replace(/[()]/g,'');
+  code = code.replace(/[¿]/g,'(');
+  code = code.replace(/[?]/g,')');
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
+
+
 
 
 /*
@@ -288,9 +297,8 @@ Blockly.JavaScript['array_access'] = function(block) {
 
 Blockly.JavaScript['read'] = function(block) {
   var text_id = block.getFieldValue('ID');
-  var text_value = block.getFieldValue('VALUE');
   // TODO: Assemble JavaScript into code variable.
-  var code = 'read (' + (text_id) + ')' + text_value +';\n';
+  var code = 'read (' + (text_id) + ');\n';
   return code;
 };
 
