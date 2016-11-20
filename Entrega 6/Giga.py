@@ -216,7 +216,6 @@ def p_funcg(p):
 def p_maing(p):
 	'''maing : MAIN changeToLocalScope completeJumpToMain block'''
 	addQuadruple('END', '', '', '')
-	print(globalVarCount)
 	print('-------- quadruples')
 	for i in range(0, len(quadruples)):
 		q = quadruples[i]
@@ -382,7 +381,6 @@ def p_prepareParams(p):
 	'''prepareParams : empty'''
 	global sendParams
 	sendParams = list(funcGlobal[p[-1]]['parameters'])
-	print(funcGlobal[p[-1]])
 	addQuadruple('MEMORY', '', '', funcGlobal[p[-1]])
 def p_addArgument(p):
 	'''addArgument : empty'''
@@ -706,8 +704,6 @@ def p_funcReturn(p):
 
 def p_funcEnd(p):
 	'''funcEnd : empty'''
-	print('local vars: %s' % varLocal)
-	print('temp vars: %s' % tempVarCount)
 	funcGlobal[lastFuncName]['boolCount'] = localVarCount[BOOL]
 	funcGlobal[lastFuncName]['intCount'] = localVarCount[INT]
 	funcGlobal[lastFuncName]['floatCount'] = localVarCount[FLOAT]

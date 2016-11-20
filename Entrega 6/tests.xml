@@ -73,7 +73,7 @@
                                             <field name="OP">ADD</field>
                                             <value name="A">
                                               <block type="id_without_comma" id="Q;ZK}U#ss[qQSz9L^n3A">
-                                                <field name="ID">i</field>
+                                                <field name="ID">x</field>
                                               </block>
                                             </value>
                                             <value name="B">
@@ -338,7 +338,7 @@
                             <field name="ID">result</field>
                             <value name="NAME">
                               <block type="id_without_comma" id="qte1_{?GFQPZ/^YW(YPl">
-                                <field name="ID">0</field>
+                                <field name="ID">n</field>
                               </block>
                             </value>
                             <next>
@@ -805,7 +805,7 @@
                                                                                                                                                             <field name="MODE">WHILE</field>
                                                                                                                                                             <value name="BOOL">
                                                                                                                                                               <block type="logic_compare" id="`MfWedsOR{dHmI~uFFjL">
-                                                                                                                                                                <field name="OP">LT</field>
+                                                                                                                                                                <field name="OP">GT</field>
                                                                                                                                                                 <value name="A">
                                                                                                                                                                   <block type="parentesis" id="O!83|,dTJWg08,wL,Lxx">
                                                                                                                                                                     <value name="VALUE">
@@ -827,7 +827,7 @@
                                                                                                                                                                 </value>
                                                                                                                                                                 <value name="B">
                                                                                                                                                                   <block type="id_without_comma" id="7oI`O*wTyIg{)b0u[w}r">
-                                                                                                                                                                    <field name="ID">i</field>
+                                                                                                                                                                    <field name="ID">j</field>
                                                                                                                                                                   </block>
                                                                                                                                                                 </value>
                                                                                                                                                               </block>
@@ -836,7 +836,7 @@
                                                                                                                                                               <block type="controls_if" id="gaRYX_n46ebi^e7*oA;7">
                                                                                                                                                                 <value name="IF0">
                                                                                                                                                                   <block type="logic_compare" id="MGQ]QRVnq}*22W4W_Y,H">
-                                                                                                                                                                    <field name="OP">GT</field>
+                                                                                                                                                                    <field name="OP">LT</field>
                                                                                                                                                                     <value name="A">
                                                                                                                                                                       <block type="array_access" id="Jo=1AdE]/#z8w#!w1@kO">
                                                                                                                                                                         <field name="ID">a</field>
@@ -872,7 +872,7 @@
                                                                                                                                                                         </value>
                                                                                                                                                                         <next>
                                                                                                                                                                           <block type="array_asignation" id="4@9VNkA~z8-Y26;~ei%a">
-                                                                                                                                                                            <field name="ID">id</field>
+                                                                                                                                                                            <field name="ID">a</field>
                                                                                                                                                                             <field name="PLACE">j+1</field>
                                                                                                                                                                             <value name="NAME">
                                                                                                                                                                               <block type="id_without_comma" id="6FiK!3L/L26;ec9=H@T;">
@@ -971,7 +971,7 @@
                                                                                                                                                                     <field name="MODE">WHILE</field>
                                                                                                                                                                     <value name="BOOL">
                                                                                                                                                                       <block type="logic_compare" id="@u,frGb!Cj,{5{?;p%+w">
-                                                                                                                                                                        <field name="OP">GT</field>
+                                                                                                                                                                        <field name="OP">GTE</field>
                                                                                                                                                                         <value name="A">
                                                                                                                                                                           <block type="id_without_comma" id="Q3+Yd8q7YKl_g|[jcSX@">
                                                                                                                                                                             <field name="ID">y</field>
