@@ -669,7 +669,7 @@ def p_whileCheck(p):
 		addQuadruple('GOTOF', condition['dir'], '', '')
 		jumpStack.append(len(quadruples)-1)
 	else:
-		error('Error: Condition in \'if\' statement must evaluate to a bool.')
+		error('Error: Condition in \'while\' statement must evaluate to a bool.')
 
 def p_whileEnd(p):
 	'''whileEnd : empty'''

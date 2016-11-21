@@ -78,8 +78,8 @@ varDictionary['float-float'] = FLOAT
 #Multiplication
 varDictionary['int*int'] = INT
 varDictionary['int*float'] = FLOAT
-varDictionary['float*float'] = FLOAT
 varDictionary['float*int'] = FLOAT
+varDictionary['float*float'] = FLOAT
 
 #Division
 varDictionary['int/int'] = INT
@@ -129,7 +129,7 @@ varDictionary['int!=int'] = BOOL
 varDictionary['int!=float'] = BOOL
 varDictionary['float!=int'] = BOOL
 varDictionary['float!=float'] = BOOL
-varDictionary['string!=string']  = BOOL
+varDictionary['string!=string'] = BOOL
 
 
 #And
