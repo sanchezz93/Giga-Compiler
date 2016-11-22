@@ -1,0 +1,102 @@
+module id {
+  func int fibonacci (int n){
+    int x=0;
+    int y=1;
+    int z=1;
+    int i=0;
+    while (i < n) {
+      x=y;
+      y=z;
+      z=x + y;
+      i=i + 1;
+    }
+    return x;
+
+  }
+  func int factorial (int n){
+    int i=1;
+    int acum=1;
+    while (i <= n) {
+      acum=acum * i;
+      i=i + 1;
+    }
+    return acum;
+
+  }
+  func int factorialRec (int n){
+    int result=1;
+    int temp=1;
+    if (n > 0) {
+      temp=factorialRec(n - 1);
+      result=n * temp;
+    }
+    return result;
+
+  }
+  func int fibonacciRec (int n){
+    int result=0;
+    result=n;
+    int a=0;
+    int b=0;
+    if (n >= 2) {
+      a=fibonacciRec(n - 1);
+      b=fibonacciRec(n - 2);
+      result=a + b;
+    }
+    return result;
+
+  }
+  main {
+    int a[10] = [2, 3, 5, 9, 1, 4, 0, 6, 8, 7];
+    int x=1,i=1,j=0,temp=0,size=10,n=0;
+    print("Read");
+    read (n);
+    print("-----------------------");
+    print("Iterative Fibonacci");
+    x=fibonacci(n);
+    print(x);
+    print("Recursive Fibonacci");
+    x=fibonacciRec(n);
+    print(x);
+    print("Iterative Factorial");
+    x=factorial(n);
+    print(x);
+    print("Recursive Factorial");
+    x=factorialRec(n);
+    print(x);
+    print("-----------------------");
+    print("Find");
+    print(a[0]);
+    print(a[1]);
+    print(a[2]);
+    print(a[3]);
+    print(a[4]);
+    print(a[5]);
+    print(a[6]);
+    print(a[7]);
+    print(a[8]);
+    print(a[9]);
+    print("-----------------------");
+    print("Sort");
+    while (i < size) {
+      while (( size - 1 ) > j) {
+        if (a[j] < a[j+1]) {
+          temp=a[j];
+          a[j] = a[j+1];
+          a[j+1] = temp;
+        }
+        j=j + 1;
+      }
+      i=i + 1;
+      j=0;
+    }
+    int y=0;
+    y=( size - 1 );
+    while (y >= 0) {
+      print(a[y]);
+      y=y - 1;
+    }
+
+  }
+
+}
