@@ -214,8 +214,6 @@ def executeVirtualMachine(functions, quadruples, constants, globalVarCount, temp
 			if not(valueVar1 >= 0 and valueVar1 < quadruple['result']):
 				error("Out of bounds array")
 
-		# elif quadruple[countQuadruples]['op'] == 'ENDFUNC':
-
 		elif quadruple['op'] == 'GOTO':
 
 			countQuadruples = quadruple['result'] - 1

@@ -17,13 +17,13 @@ globalVarCount[STRING] = INITIALGLOBALSTRING
 
 localVarCount = {}			#20000
 localVarCount[BOOL] = INITIALLOCALBOOL
-localVarCount[INT] =  INITIALLOCALINT
-localVarCount[FLOAT] =  INITIALLOCALFLOAT
-localVarCount[STRING] =  INITIALLOCALSTRING
+localVarCount[INT] = INITIALLOCALINT
+localVarCount[FLOAT] = INITIALLOCALFLOAT
+localVarCount[STRING] = INITIALLOCALSTRING
 
 tempVarCount = {}			#30000
 tempVarCount[BOOL] = INITIALTEMPBOOL
-tempVarCount[INT] =  INITIALTEMPINT
+tempVarCount[INT] = INITIALTEMPINT
 tempVarCount[FLOAT] = INITIALTEMPFLOAT
 tempVarCount[STRING] = INITIALTEMPSTRING
 
@@ -115,7 +115,7 @@ t_NUMBERFLT = r'[0-9]+\.[0-9]+'
 
 t_ignore = " \t"
 
-def  t_ID(t):
+def t_ID(t):
 	r'[a-z_][a-zA-Z0-9_]*'
 	t.type = reserved.get(t.value, 'ID')
 	return t
@@ -216,10 +216,10 @@ def p_funcg(p):
 def p_maing(p):
 	'''maing : MAIN changeToLocalScope completeJumpToMain block'''
 	addQuadruple('END', '', '', '')
-	print('-------- quadruples')
-	for i in range(0, len(quadruples)):
-		q = quadruples[i]
-		print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
+	# print('-------- quadruples')
+	# for i in range(0, len(quadruples)):
+	# 	q = quadruples[i]
+	# 	print('%s	{var1:%s }		{op:%s }		{var2:%s }		{result:%s }' % (i, q['var1'], q['op'], q['var2'], q['result']))
 
 def p_block1(p):
 	'''block1 : empty
@@ -830,7 +830,7 @@ if __name__ == '__main__':
 				print(dirProc);
 			executeVirtualMachine(funcGlobal, quadruples, constants, globalVarCount, tempVarCount, localVarCount, pointerCount)
 		except EOFError:
-	   		print(EOFError)
+			print(EOFError)
 	else:
 		print('File missing')
 		while 1:
