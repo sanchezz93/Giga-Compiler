@@ -6,7 +6,7 @@ class Memory:
 		self.name = name
 		# alocates memory by data type 
 		# variables 
-		# self.int = variables[Amount of type] * [""] 
+		# self.int = variables[Amount of type + 1] * [""] 
 		# creates a list of variables 
 		self.localBools = ( localVariables[BOOL] - INITIALLOCALBOOL + 1) * [None] 
 		self.localInts = ( localVariables[INT] - INITIALLOCALINT + 1) * [None]
